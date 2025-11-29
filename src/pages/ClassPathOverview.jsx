@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, TrendingUp, Clock, Target, Eye } from 'lucide-react';
+import { ArrowLeft, Users, TrendingUp, BookOpen, Clock, Sparkles, Brain, Target, Eye } from 'lucide-react';
 import { MOCK_STUDENTS, STUDENT_PATH_ASSIGNMENTS, StudentPathManager } from '../data/student_path_data';
 
 const ClassPathOverview = () => {
@@ -221,6 +221,20 @@ const ClassPathOverview = () => {
                                                     </div>
                                                 </div>
                                             )}
+
+                                            {/* AI分析按钮 */}
+                                            <div className="mt-4 pt-4 border-t border-slate-200">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        navigate(`/teacher/student/${student.id}/analysis`);
+                                                    }}
+                                                    className="w-full px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                                                >
+                                                    <Brain size={16} />
+                                                    查看AI学情分析
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

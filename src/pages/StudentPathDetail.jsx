@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Clock, CheckCircle2, Circle, TrendingUp, Target, Award, History, PlayCircle, FileText, MessageSquare, Layout } from 'lucide-react';
+import { ArrowLeft, BookOpen, Clock, CheckCircle2, Circle, TrendingUp, Target, Award, History, PlayCircle, FileText, MessageSquare, Layout, Brain } from 'lucide-react';
 import { MOCK_STUDENTS, StudentPathManager } from '../data/student_path_data';
 import { findNodeById, KNOWLEDGE_TREE } from '../data/knowledge_tree';
 
@@ -77,6 +77,13 @@ const StudentPathDetail = () => {
                             </div>
                             <p className="text-xs text-slate-500">完成进度</p>
                         </div>
+                        <button
+                            onClick={() => navigate(`/teacher/student/${studentId}/analysis`)}
+                            className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:shadow-xl transition-all flex items-center gap-2"
+                        >
+                            <Brain size={20} />
+                            查看AI分析
+                        </button>
                     </div>
                 </div>
             </header>

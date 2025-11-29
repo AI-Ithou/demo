@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles, Send, User, MessageSquare, BookOpen, LayoutDashboard, Book, MoreHorizontal } from 'lucide-react';
+import { ArrowLeft, Sparkles, Send, User, MessageSquare, BookOpen, LayoutDashboard, Book, MoreHorizontal, GraduationCap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // 导入数据
@@ -58,7 +58,7 @@ const MessageBubble = ({ message, onCardAction }) => {
             <div className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} max-w-[85%]`}>
                 <div className="flex items-center gap-2 mb-1 px-1">
                     <span className={`text-xs font-bold ${isUser ? 'text-blue-600' : 'text-purple-600'}`}>
-                        {isUser ? '我' : 'AI 导师'}
+                        {isUser ? '我' : 'AI 教师'}
                     </span>
                 </div>
 
@@ -135,6 +135,7 @@ const LearningDialoguePage = () => {
     const [inputValue, setInputValue] = useState('');
     const [showQuickReplies, setShowQuickReplies] = useState(true);
     const [currentMasteryLevel, setCurrentMasteryLevel] = useState(null);
+    const [mode, setMode] = useState('qa'); // 'qa' 或 'teach'
     const messagesEndRef = useRef(null);
 
     // 加载数据
@@ -374,37 +375,66 @@ const LearningDialoguePage = () => {
     ];
 
     return (
-        <div className="h-screen w-screen bg-gradient-to-br from-slate-50 to-blue-50 flex overflow-hidden font-sans text-slate-800 selection:bg-blue-200 relative">
-            {/* 背景特效 */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-blue-200/30 rounded-full blur-[120px] animate-pulse" />
-                <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-purple-200/30 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
-            </div>
+        <div className="h-screen w-screen bg-gradient-to-br from-white via-slate-50 to-blue-50 flex overflow-hidden font-sans text-slate-800 selection:bg-blue-200 relative">
+            {/* 背景装饰 - 移除彩色光晕 */}
 
             {/* 主对话区域 */}
             <main className="flex-1 flex flex-col relative min-w-0 z-10">
                 {/* 顶部栏 */}
-                <header className="h-16 flex items-center justify-between px-6 lg:px-10 border-b border-slate-200 bg-white/80 backdrop-blur-md shadow-sm">
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => navigate(-1)}
-                            className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors"
-                        >
-                            <ArrowLeft size={20} />
-                        </button>
-                        <div>
-                            <h2 className="font-bold text-slate-900 text-base tracking-tight">{nodeData.title}</h2>
-                            <p className="text-xs text-slate-500">{nodeData.subtitle}</p>
+                <header className="border-b border-slate-200 bg-white/80 backdrop-blur-md shadow-sm">
+                    <div className="h-16 flex items-center justify-between px-6 lg:px-10">
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => navigate(-1)}
+                                className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors"
+                            >
+                                <ArrowLeft size={20} />
+                            </button>
+                            <div>
+                                <h2 className="font-bold text-slate-900 text-base tracking-tight">{nodeData.title}</h2>
+                                <p className="text-xs text-slate-500">{nodeData.subtitle}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full">
+                                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                                <span className="text-xs text-emerald-700 font-medium">在线</span>
+                            </div>
+                            <button className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors">
+                                <MoreHorizontal size={20} />
+                            </button>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full">
-                            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                            <span className="text-xs text-emerald-700 font-medium">在线</span>
+
+                    {/* 模式切换器 */}
+                    <div className="px-6 lg:px-10 pb-3 flex items-center gap-3">
+                        <GraduationCap size={18} className="text-slate-600" />
+                        <span className="text-sm text-slate-600 font-medium">模式：</span>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setMode('qa')}
+                                className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${mode === 'qa'
+                                    ? 'bg-blue-500 text-white shadow-md'
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                            >
+                                <MessageSquare size={14} className="inline mr-1" />
+                                问答模式
+                            </button>
+                            <button
+                                onClick={() => setMode('teach')}
+                                className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${mode === 'teach'
+                                    ? 'bg-purple-500 text-white shadow-md'
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                            >
+                                <BookOpen size={14} className="inline mr-1" />
+                                教学模式
+                            </button>
                         </div>
-                        <button className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors">
-                            <MoreHorizontal size={20} />
-                        </button>
+                        <span className="text-xs text-slate-400 ml-2">
+                            {mode === 'qa' ? '快速解答你的疑问' : '系统化讲解知识点'}
+                        </span>
                     </div>
                 </header>
 

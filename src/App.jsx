@@ -36,6 +36,8 @@ import TeacherPathEditor from './pages/TeacherPathEditor';
 import ClassPathOverview from './pages/ClassPathOverview';
 import AIGroupingRecommendation from './pages/AIGroupingRecommendation';
 import StudentPathDetail from './pages/StudentPathDetail';
+import StudentAnalysisReport from './pages/StudentAnalysisReport';
+import KnowledgeAssessmentConfig from './pages/KnowledgeAssessmentConfig';
 
 // Placeholder components for future pages to avoid build errors
 const PlaceholderPage = ({ title }) => (
@@ -89,6 +91,8 @@ function App() {
       <Route path="/teacher/class-overview" element={<ClassPathOverview />} />
       <Route path="/teacher/ai-grouping" element={<AIGroupingRecommendation />} />
       <Route path="/teacher/student/:studentId" element={<StudentPathDetail />} />
+      <Route path="/teacher/student/:studentId/analysis" element={<StudentAnalysisReport />} />
+      <Route path="/teacher/assessment-config" element={<KnowledgeAssessmentConfig />} />
     </Routes>
   );
 }
