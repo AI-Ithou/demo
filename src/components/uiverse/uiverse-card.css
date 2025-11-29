@@ -1,0 +1,246 @@
+/* Base Card Styles */
+.uiverse-card {
+    position: relative;
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.uiverse-card-hoverable {
+    cursor: pointer;
+}
+
+.uiverse-card-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* Basic Card - Clean with Shadow */
+.uiverse-card-basic {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.uiverse-card-basic.uiverse-card-hoverable:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+/* Glass Card - Glassmorphism Effect */
+.uiverse-card-glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+.uiverse-card-glass .card-glass-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            rgba(255, 255, 255, 0.05) 100%);
+    pointer-events: none;
+}
+
+.uiverse-card-glass.uiverse-card-hoverable:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
+    transform: translateY(-4px);
+}
+
+/* Gradient Card - Vibrant Gradient Background */
+.uiverse-card-gradient {
+    background: white;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.uiverse-card-gradient .card-gradient-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    opacity: 0.05;
+    transition: opacity 0.3s ease;
+}
+
+.uiverse-card-gradient.uiverse-card-hoverable:hover .card-gradient-bg {
+    opacity: 0.1;
+}
+
+.uiverse-card-gradient.uiverse-card-hoverable:hover {
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+    transform: translateY(-4px);
+}
+
+/* Neon Card - Cyberpunk Glow */
+.uiverse-card-neon {
+    background: #1a1a2e;
+    border: 2px solid #0ff;
+    box-shadow:
+        inset 0 0 20px rgba(0, 255, 255, 0.2),
+        0 0 20px rgba(0, 255, 255, 0.4);
+}
+
+.uiverse-card-neon .card-content {
+    color: #fff;
+}
+
+.uiverse-card-neon .card-neon-border {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    background: linear-gradient(45deg, #0ff, #f0f, #0ff, #f0f);
+    background-size: 400% 400%;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+    filter: blur(15px);
+    animation: neon-gradient 3s ease infinite;
+}
+
+.uiverse-card-neon.uiverse-card-hoverable:hover .card-neon-border {
+    opacity: 1;
+}
+
+.uiverse-card-neon.uiverse-card-hoverable:hover {
+    box-shadow:
+        inset 0 0 30px rgba(0, 255, 255, 0.4),
+        0 0 40px rgba(0, 255, 255, 0.6);
+    transform: translateY(-4px);
+}
+
+@keyframes neon-gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* 3D Card - Depth and Perspective */
+.uiverse-card-3d {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.12),
+        0 10px 20px rgba(0, 0, 0, 0.08);
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+.uiverse-card-3d.uiverse-card-hoverable:hover {
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.15),
+        0 20px 40px rgba(0, 0, 0, 0.12);
+    transform: translateY(-8px) rotateX(2deg);
+}
+
+/* Interactive Card - Tilt Effect */
+.uiverse-card-interactive {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.uiverse-card-interactive.uiverse-card-hoverable:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transform: translateY(-6px) scale(1.02);
+}
+
+/* Shine Card - Light Sweep Effect */
+.uiverse-card-shine {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.uiverse-card-shine::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.6),
+            transparent);
+    transition: left 0.5s ease;
+}
+
+.uiverse-card-shine.uiverse-card-hoverable:hover::before {
+    left: 100%;
+}
+
+.uiverse-card-shine.uiverse-card-hoverable:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+/* Border Gradient Card */
+.uiverse-card-border-gradient {
+    background: white;
+    position: relative;
+    padding: 2px;
+    border-radius: 1rem;
+}
+
+.uiverse-card-border-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c);
+    background-size: 300% 300%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: border-rotate 3s linear infinite;
+}
+
+.uiverse-card-border-gradient .card-content {
+    background: white;
+    border-radius: calc(1rem - 2px);
+    position: relative;
+    z-index: 1;
+}
+
+.uiverse-card-border-gradient.uiverse-card-hoverable:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+}
+
+@keyframes border-rotate {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}

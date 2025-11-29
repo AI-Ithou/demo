@@ -1,0 +1,254 @@
+/* Base Input Styles */
+.uiverse-input-wrapper {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.input-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    transition: color 0.3s ease;
+}
+
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-field {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-family: inherit;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background: white;
+    color: #1f2937;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    color: #9ca3af;
+    transition: color 0.3s ease;
+    z-index: 1;
+}
+
+.input-field:focus {
+    border-color: #667eea;
+}
+
+.input-error-message {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #ef4444;
+}
+
+/* Animated Input - Floating Label */
+.uiverse-input-animated .input-container {
+    position: relative;
+}
+
+.uiverse-input-animated .input-field {
+    border: none;
+    border-bottom: 2px solid #e5e7eb;
+    border-radius: 0;
+    padding: 1rem 0;
+    background: transparent;
+}
+
+.uiverse-input-animated .input-border {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 0.3s ease;
+}
+
+.uiverse-input-animated.is-focused .input-border {
+    width: 100%;
+}
+
+.uiverse-input-animated .input-label {
+    position: absolute;
+    top: 1rem;
+    left: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    color: #9ca3af;
+}
+
+.uiverse-input-animated.is-focused .input-label,
+.uiverse-input-animated.has-value .input-label {
+    top: -1.5rem;
+    font-size: 0.75rem;
+    color: #667eea;
+}
+
+.uiverse-input-animated.is-focused .input-field {
+    border-bottom-color: transparent;
+}
+
+/* Glass Input - Glassmorphism */
+.uiverse-input-glass .input-field {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #1f2937;
+}
+
+.uiverse-input-glass .input-field::placeholder {
+    color: rgba(31, 41, 55, 0.5);
+}
+
+.uiverse-input-glass.is-focused .input-field {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+/* Neon Input - Cyberpunk Glow */
+.uiverse-input-neon .input-field {
+    background: #1a1a2e;
+    border: 2px solid #0ff;
+    color: #0ff;
+    box-shadow:
+        inset 0 0 10px rgba(0, 255, 255, 0.2),
+        0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.uiverse-input-neon .input-field::placeholder {
+    color: rgba(0, 255, 255, 0.5);
+}
+
+.uiverse-input-neon .input-label {
+    color: #0ff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.uiverse-input-neon .input-neon-glow {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #0ff, #f0f, #0ff);
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+    filter: blur(10px);
+}
+
+.uiverse-input-neon.is-focused .input-neon-glow {
+    opacity: 1;
+    animation: neon-pulse 2s ease-in-out infinite;
+}
+
+.uiverse-input-neon.is-focused .input-field {
+    box-shadow:
+        inset 0 0 20px rgba(0, 255, 255, 0.4),
+        0 0 20px rgba(0, 255, 255, 0.6);
+}
+
+@keyframes neon-pulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Gradient Input - Colorful Border */
+.uiverse-input-gradient .input-field {
+    border: 2px solid transparent;
+    background:
+        linear-gradient(white, white) padding-box,
+        linear-gradient(135deg, #667eea, #764ba2) border-box;
+}
+
+.uiverse-input-gradient.is-focused .input-field {
+    background:
+        linear-gradient(white, white) padding-box,
+        linear-gradient(135deg, #764ba2, #f093fb) border-box;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Minimal Input - Clean and Simple */
+.uiverse-input-minimal .input-field {
+    border: none;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 0;
+    padding: 0.5rem 0;
+    background: transparent;
+}
+
+.uiverse-input-minimal.is-focused .input-field {
+    border-bottom-color: #667eea;
+}
+
+/* Search Input - With Icon */
+.uiverse-input-search .input-field {
+    padding-left: 3rem;
+    border-radius: 2rem;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.uiverse-input-search .input-icon {
+    left: 1.25rem;
+}
+
+.uiverse-input-search.is-focused .input-field {
+    background: white;
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.uiverse-input-search.is-focused .input-icon {
+    color: #667eea;
+}
+
+/* Error State */
+.uiverse-input-wrapper.has-error .input-field {
+    border-color: #ef4444 !important;
+}
+
+.uiverse-input-wrapper.has-error .input-label {
+    color: #ef4444;
+}
+
+.uiverse-input-wrapper.has-error.uiverse-input-animated .input-border {
+    background: #ef4444;
+}
+
+/* 3D Input - Depth Effect */
+.uiverse-input-3d .input-field {
+    border: 2px solid #e5e7eb;
+    box-shadow:
+        0 2px 0 #d1d5db,
+        0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(0);
+    transition: all 0.2s ease;
+}
+
+.uiverse-input-3d.is-focused .input-field {
+    border-color: #667eea;
+    box-shadow:
+        0 1px 0 #667eea,
+        0 3px 6px rgba(102, 126, 234, 0.2);
+    transform: translateY(1px);
+}
