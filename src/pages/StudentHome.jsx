@@ -1,7 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Progress, Tag, Avatar, Dropdown, Space } from 'antd';
-import { UserOutlined, BellOutlined, RightOutlined } from '@ant-design/icons';
+import { Avatar, Dropdown, Progress } from 'antd';
+import { UserOutlined, RightOutlined, BellOutlined } from '@ant-design/icons';
+import { motion } from 'framer-motion';
+import { GlassCard, GradientButton, LiquidProgress, CircularProgress } from '../components/uiverse';
+import { BookOpen } from 'lucide-react';
 
 const StudentHome = () => {
     const navigate = useNavigate();
@@ -60,31 +63,41 @@ const StudentHome = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans">
-            {/* Top Navigation Bar */}
-            <div className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="min-h-screen font-sans">
+            {/* 液态玻璃导航栏 */}
+            <div className="bg-white/75 backdrop-blur-2xl border-b border-gray-200/30 shadow-glass glass-highlight sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#2563EB" />
-                                <path d="M2 17L12 22L22 17" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                <path d="M2 12L12 17L22 12" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
+                        {/* Logo */}
+                        <motion.div 
+                            className="flex items-center gap-3"
+                            whileHover={{ scale: 1.02 }}
+                        >
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-glow-blue">
+                                <BookOpen className="text-white w-5 h-5" />
+                            </div>
                             <span className="font-bold text-lg text-gray-900">炎枢平台</span>
-                        </div>
+                        </motion.div>
+                        
+                        {/* 右侧操作 */}
                         <div className="flex items-center gap-4">
-                            <button
+                            <GradientButton
                                 onClick={() => navigate('/teacher')}
-                                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
+                                variant="primary"
+                                size="medium"
+                                className="gap-2"
                             >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                </svg>
+                                <BookOpen className="w-4 h-4" />
                                 教师端
-                            </button>
+                            </GradientButton>
                             <Dropdown menu={{ items }} placement="bottomRight">
-                                <Avatar size={40} icon={<UserOutlined />} className="bg-gray-100 text-gray-400 cursor-pointer" />
+                                <motion.div whileHover={{ scale: 1.05 }}>
+                                    <Avatar 
+                                        size={40} 
+                                        icon={<UserOutlined />} 
+                                        className="bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 cursor-pointer border-2 border-white shadow-md" 
+                                    />
+                                </motion.div>
                             </Dropdown>
                         </div>
                     </div>
@@ -92,30 +105,98 @@ const StudentHome = () => {
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Hero Banner */}
-                <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-8 text-white shadow-lg mb-10 relative overflow-hidden">
-                    <div className="relative z-10">
-                        <h1 className="text-3xl font-bold mb-2">三维建模基础</h1>
-                        <p className="text-orange-100 mb-6">许葵</p>
-                        <p className="text-sm text-orange-100 mb-6">上次学习：待开始学习</p>
-                        <div className="flex gap-4">
-                            <button
-                                onClick={() => navigate('/goal-setting')}
-                                className="bg-white text-orange-600 px-6 py-2 rounded-lg font-medium hover:bg-orange-50 transition-colors"
+                {/* 液态玻璃 Hero 横幅 */}
+                <motion.div 
+                    className="relative rounded-3xl p-10 text-white shadow-glass-deep mb-10 overflow-hidden"
+                    style={{
+                        background: 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)',
+                    }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                >
+                    {/* 背景装饰 */}
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.15)_0%,_transparent_50%)]" />
+                    <div className="absolute right-0 top-0 h-full w-1/2 opacity-10">
+                        <div className="absolute inset-0" style={{
+                            backgroundImage: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.4"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+                        }} />
+                    </div>
+
+                    {/* 内容 */}
+                    <div className="relative z-10 flex items-center justify-between">
+                        <div className="flex-1">
+                            <motion.h1 
+                                className="text-4xl font-bold mb-3"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.2 }}
                             >
-                                继续学习
-                            </button>
-                            <button className="border border-white text-white px-6 py-2 rounded-lg font-medium hover:bg-white/10 transition-colors">
-                                课程详情
-                            </button>
+                                三维建模基础
+                            </motion.h1>
+                            <motion.p 
+                                className="text-orange-100 mb-2 text-lg"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.3 }}
+                            >
+                                讲师：许葵
+                            </motion.p>
+                            <motion.p 
+                                className="text-sm text-orange-100 mb-8 flex items-center gap-2"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.4 }}
+                            >
+                                <span className="w-2 h-2 bg-white/50 rounded-full animate-pulse" />
+                                上次学习：待开始学习
+                            </motion.p>
+                            
+                            <motion.div 
+                                className="flex gap-4"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5 }}
+                            >
+                                <GradientButton
+                                    onClick={() => navigate('/goal-setting')}
+                                    variant="secondary"
+                                    size="large"
+                                    className="bg-white/90 backdrop-blur-md text-orange-600 hover:bg-white border-0"
+                                >
+                                    继续学习
+                                </GradientButton>
+                                <GradientButton
+                                    variant="text"
+                                    size="large"
+                                    className="border border-white/40 text-white hover:bg-white/10"
+                                >
+                                    课程详情
+                                </GradientButton>
+                            </motion.div>
                         </div>
+
+                        {/* 右侧悬浮卡片 */}
+                        <motion.div
+                            className="hidden lg:block"
+                            initial={{ opacity: 0, scale: 0.8, rotateY: -15 }}
+                            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                            transition={{ delay: 0.6, duration: 0.8 }}
+                        >
+                            <div className="relative">
+                                <div className="w-64 h-40 bg-white/10 backdrop-blur-md rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500">
+                                    <img 
+                                        src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop" 
+                                        alt="Course" 
+                                        className="w-full h-full object-cover" 
+                                    />
+                                </div>
+                                {/* 光晕效果 */}
+                                <div className="absolute -inset-2 bg-gradient-to-r from-orange-400/20 to-yellow-400/20 rounded-3xl blur-xl -z-10" />
+                            </div>
+                        </motion.div>
                     </div>
-                    {/* Decorative Image/Pattern */}
-                    <div className="absolute right-0 top-0 h-full w-1/3 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-                    <div className="absolute right-10 top-1/2 -translate-y-1/2 w-48 h-32 bg-blue-400 rounded-lg shadow-2xl transform rotate-3 opacity-90 overflow-hidden border-4 border-white/20">
-                        <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop" alt="Course" className="w-full h-full object-cover" />
-                    </div>
-                </div>
+                </motion.div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Left Column: Course List */}

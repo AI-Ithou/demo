@@ -123,6 +123,22 @@ const TeacherCoursePage = () => {
                     </div>
 
                     <div className="p-6 bg-slate-50">
+                        {activeTab === 'resources' && (
+                            <div className="bg-white rounded-xl border-2 border-slate-200 p-8 text-center">
+                                <div className="max-w-md mx-auto">
+                                    <Database size={48} className="mx-auto text-blue-500 mb-4" />
+                                    <h3 className="text-xl font-bold text-slate-800 mb-2">课程资料管理</h3>
+                                    <p className="text-slate-600 mb-6">管理课程相关的文件、题库、视频和H5交互资源</p>
+                                    <button
+                                        onClick={() => navigate('/teacher/resources')}
+                                        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:shadow-lg transition-all font-medium"
+                                    >
+                                        进入资料管理
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         {activeTab === 'manage' && (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 {/* 学习路径管理 */}
@@ -163,7 +179,7 @@ const TeacherCoursePage = () => {
                             </div>
                         )}
 
-                        {activeTab !== 'manage' && (
+                        {activeTab !== 'manage' && activeTab !== 'resources' && (
                             <div className="text-center py-20">
                                 <div className="text-slate-400 text-lg">
                                     {tabs.find(t => t.id === activeTab)?.label} 功能开发中...
