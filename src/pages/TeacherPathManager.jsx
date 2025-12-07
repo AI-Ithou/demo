@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Edit2, Trash2, Eye, BookOpen, Clock, AlertCircle, Copy } from 'lucide-react';
+import { ArrowLeft, Plus, Edit2, Trash2, Eye, BookOpen, Clock, AlertCircle, Copy, FileText } from 'lucide-react';
 import { PathManager } from '../data/learning_path_config';
 
 const TeacherPathManager = () => {
@@ -59,8 +59,8 @@ const TeacherPathManager = () => {
                                     <BookOpen className="text-white" size={20} />
                                 </div>
                                 <div>
-                                    <h1 className="text-xl font-bold text-slate-800">学习路径管理</h1>
-                                    <p className="text-sm text-slate-500">创建和管理多个学习路径</p>
+                                    <h1 className="text-xl font-bold text-slate-800">学习地图管理</h1>
+                                    <p className="text-sm text-slate-500">创建和管理多个学习地图</p>
                                 </div>
                             </div>
                         </div>
@@ -84,7 +84,7 @@ const TeacherPathManager = () => {
                             <BookOpen size={20} className="text-blue-100" />
                         </div>
                         <div className="text-3xl font-bold">{paths.length}</div>
-                        <p className="text-blue-100 text-xs mt-1">已创建的学习路径</p>
+                        <p className="text-blue-100 text-xs mt-1">已创建的学习地图</p>
                     </div>
 
                     <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-6 text-white">
@@ -117,13 +117,13 @@ const TeacherPathManager = () => {
 
                 {/* 路径列表 */}
                 <div className="space-y-4">
-                    <h2 className="text-lg font-bold text-slate-800">所有学习路径</h2>
+                    <h2 className="text-lg font-bold text-slate-800">所有学习地图</h2>
 
                     {paths.length === 0 ? (
                         <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-12 text-center">
                             <BookOpen size={48} className="text-slate-300 mx-auto mb-4" />
-                            <h3 className="text-lg font-bold text-slate-800 mb-2">还没有创建任何学习路径</h3>
-                            <p className="text-slate-500 mb-6">点击上方"创建新路径"开始配置您的第一个学习路径</p>
+                            <h3 className="text-lg font-bold text-slate-800 mb-2">还没有创建任何学习地图</h3>
+                            <p className="text-slate-500 mb-6">点击上方"创建新地图"开始配置您的第一个学习地图</p>
                             <button
                                 onClick={() => navigate('/teacher/path/edit/new')}
                                 className="px-6 py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors inline-flex items-center gap-2"
@@ -225,6 +225,13 @@ const TeacherPathManager = () => {
                                         >
                                             <Edit2 size={14} />
                                             编辑
+                                        </button>
+                                        <button
+                                            onClick={() => navigate(`/teacher/lesson-plans/create?pathId=${path.id}`)}
+                                            className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors flex items-center gap-2 text-sm font-medium"
+                                            title="生成教案"
+                                        >
+                                            <FileText size={14} />
                                         </button>
                                         <button
                                             onClick={() => handleDuplicate(path.id)}

@@ -29,6 +29,7 @@ import PracticeCard from '../components/chat-widgets/PracticeCard';
 import AssessmentCard from '../components/chat-widgets/AssessmentCard';
 import MasteryLevelSelector from '../components/chat-widgets/MasteryLevelSelector';
 import PathRecommendCard from '../components/chat-widgets/PathRecommendCard';
+import TeachingModeSwitch from '../components/TeachingModeSwitch';
 
 /**
  * 消息气泡组件
@@ -135,7 +136,7 @@ const LearningDialoguePage = () => {
     const [inputValue, setInputValue] = useState('');
     const [showQuickReplies, setShowQuickReplies] = useState(true);
     const [currentMasteryLevel, setCurrentMasteryLevel] = useState(null);
-    const [mode, setMode] = useState('qa'); // 'qa' 或 'teach'
+    const [mode, setMode] = useState('teach'); // 默认为教学模式，更符合学生端使用
     const messagesEndRef = useRef(null);
 
     // 加载数据
@@ -405,37 +406,6 @@ const LearningDialoguePage = () => {
                             </button>
                         </div>
                     </div>
-
-                    {/* 模式切换器 */}
-                    <div className="px-6 lg:px-10 pb-3 flex items-center gap-3">
-                        <GraduationCap size={18} className="text-slate-600" />
-                        <span className="text-sm text-slate-600 font-medium">模式：</span>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => setMode('qa')}
-                                className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${mode === 'qa'
-                                    ? 'bg-blue-500 text-white shadow-md'
-                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                    }`}
-                            >
-                                <MessageSquare size={14} className="inline mr-1" />
-                                问答模式
-                            </button>
-                            <button
-                                onClick={() => setMode('teach')}
-                                className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${mode === 'teach'
-                                    ? 'bg-purple-500 text-white shadow-md'
-                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                    }`}
-                            >
-                                <BookOpen size={14} className="inline mr-1" />
-                                教学模式
-                            </button>
-                        </div>
-                        <span className="text-xs text-slate-400 ml-2">
-                            {mode === 'qa' ? '快速解答你的疑问' : '系统化讲解知识点'}
-                        </span>
-                    </div>
                 </header>
 
                 {/* 消息容器 */}
@@ -495,9 +465,9 @@ const LearningDialoguePage = () => {
                                 <Send size={18} />
                             </button>
                         </div>
-                        <div className="text-center mt-2 text-xs text-slate-400">
-                            AI 可能会出错,请验证重要信息
-                        </div>
+
+                        {/* 模式切换器 - 放在输入框下方 */}
+                        <TeachingModeSwitch mode={mode} setMode={setMode} />
                     </div>
                 </div>
             </main>

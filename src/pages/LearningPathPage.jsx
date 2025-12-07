@@ -50,7 +50,7 @@ const LearningPathPage = () => {
                     <button onClick={() => navigate(-1)} className="flex items-center text-slate-600 hover:text-slate-900 transition-colors">
                         <ArrowLeft size={20} className="mr-2" /> 返回仪表盘
                     </button>
-                    <h1 className="text-xl font-bold text-slate-800">个性化学习路径</h1>
+                    <h1 className="text-xl font-bold text-slate-800">个性化学习地图</h1>
                     <div className="flex gap-2">
                         <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-medium border border-blue-100">
                             {difficulty === 'hard' ? '困难模式' : difficulty === 'simple' ? '简单模式' : '中等模式'}

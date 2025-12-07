@@ -168,7 +168,7 @@ const TeacherPathEditor = () => {
                             </button>
                             <div>
                                 <h1 className="text-xl font-bold text-slate-800">
-                                    {isNewPath ? '创建学习路径' : '编辑学习路径'}
+                                    {isNewPath ? '创建学习地图' : '编辑学习地图'}
                                 </h1>
                                 <p className="text-sm text-slate-500">选择知识点并配置学习顺序</p>
                             </div>
@@ -196,22 +196,20 @@ const TeacherPathEditor = () => {
                             </label>
                             <input
                                 type="text"
-                                value={pathName}
-                                onChange={(e) => setPathName(e.target.value)}
-                                placeholder="例如：基础班学习路径"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                placeholder="例如：基础班学习地图"
                                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
-                                路径描述
-                            </label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">描述</label>
                             <textarea
-                                value={pathDescription}
-                                onChange={(e) => setPathDescription(e.target.value)}
-                                placeholder="描述这个学习路径的目标和适用人群"
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 rows={3}
-                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                placeholder="描述这个学习地图的目标和适用人群"
                             />
                         </div>
                     </div>

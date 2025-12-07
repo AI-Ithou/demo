@@ -6,7 +6,7 @@ const KnowledgeAssessmentConfig = () => {
     const navigate = useNavigate();
 
     // 状态管理
-    const [selectedKnowledge, setSelectedKnowledge] = useState(null);
+    const [selectedKnowledge, setSelectedKnowledge] = useState([]); // 改为数组支持多选
     const [selectedDifficulty, setSelectedDifficulty] = useState('basic');
     const [config, setConfig] = useState({});
     const [isGenerating, setIsGenerating] = useState(false);
@@ -109,26 +109,134 @@ const KnowledgeAssessmentConfig = () => {
         );
     };
 
+    // 获取节点下所有子知识点ID
+    const getAllChildrenIds = (node) => {
+        if (!node.children) return [];
+        let ids = [];
+        node.children.forEach(child => {
+            if (child.type === 'node') {
+                ids.push(child.id);
+            } else if (child.type === 'folder') {
+                ids = [...ids, ...getAllChildrenIds(child)];
+            }
+        });
+        return ids;
+    };
+
+    // 检查节点选中状态：'all'(全选), 'some'(部分选中), 'none'(未选)
+    const getNodeCheckState = (node) => {
+        if (node.type === 'node') {
+            return selectedKnowledge.includes(node.id) ? 'all' : 'none';
+        }
+        const childIds = getAllChildrenIds(node);
+        if (childIds.length === 0) return 'none';
+        const selectedCount = childIds.filter(id => selectedKnowledge.includes(id)).length;
+        if (selectedCount === 0) return 'none';
+        if (selectedCount === childIds.length) return 'all';
+        return 'some';
+    };
+
+    // 切换节点选中状态
+    const toggleNodeSelection = (node) => {
+        if (node.type === 'node') {
+            // 叶子节点：直接切换
+            setSelectedKnowledge(prev =>
+                prev.includes(node.id)
+                    ? prev.filter(id => id !== node.id)
+                    : [...prev, node.id]
+            );
+        } else {
+            // 文件夹节点：级联选择
+            const childIds = getAllChildrenIds(node);
+            const checkState = getNodeCheckState(node);
+
+            if (checkState === 'all') {
+                // 全选状态 -> 取消全部子节点
+                setSelectedKnowledge(prev =>
+                    prev.filter(id => !childIds.includes(id))
+                );
+            } else {
+                // 未选或部分选中状态 -> 全选所有子节点
+                setSelectedKnowledge(prev => {
+                    const newSelection = new Set([...prev, ...childIds]);
+                    return Array.from(newSelection);
+                });
+            }
+        }
+    };
+
+    // 全选/取消全选
+    const toggleSelectAll = () => {
+        const allNodeIds = [];
+        const collectAllNodes = (nodes) => {
+            nodes.forEach(node => {
+                if (node.type === 'node') {
+                    allNodeIds.push(node.id);
+                } else if (node.children) {
+                    collectAllNodes(node.children);
+                }
+            });
+        };
+        collectAllNodes(knowledgeTree);
+
+        if (selectedKnowledge.length === allNodeIds.length) {
+            setSelectedKnowledge([]);
+        } else {
+            setSelectedKnowledge(allNodeIds);
+        }
+    };
+
     // 渲染树节点
     const renderTreeNode = (node, level = 0) => {
+        const checkState = getNodeCheckState(node);
+
         if (node.type === 'folder') {
             const isExpanded = expandedFolders.includes(node.id);
             const Icon = isExpanded ? FolderOpen : Folder;
 
             return (
                 <div key={node.id}>
-                    <button
-                        onClick={() => toggleFolder(node.id)}
+                    <div
                         className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-slate-50 transition-all flex items-center gap-2"
                         style={{ paddingLeft: `${level * 12 + 12}px` }}
                     >
-                        <ChevronRight
-                            size={14}
-                            className={`transition-transform ${isExpanded ? 'rotate-90' : ''}`}
-                        />
-                        <Icon size={16} className="text-amber-600" />
-                        <span className="font-medium text-slate-700">{node.name}</span>
-                    </button>
+                        {/* Checkbox */}
+                        <div
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toggleNodeSelection(node);
+                            }}
+                            className="flex-shrink-0 cursor-pointer"
+                        >
+                            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${checkState === 'all'
+                                ? 'bg-blue-500 border-blue-500'
+                                : checkState === 'some'
+                                    ? 'bg-blue-200 border-blue-400'
+                                    : 'border-slate-300 hover:border-blue-400'
+                                }`}>
+                                {checkState === 'all' && <Check size={12} className="text-white" />}
+                                {checkState === 'some' && <div className="w-2 h-0.5 bg-blue-600" />}
+                            </div>
+                        </div>
+
+                        {/* 展开/折叠按钮 */}
+                        <button
+                            onClick={() => toggleFolder(node.id)}
+                            className="flex items-center gap-2 flex-1"
+                        >
+                            <ChevronRight
+                                size={14}
+                                className={`transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                            />
+                            <Icon size={16} className="text-amber-600" />
+                            <span className="font-medium text-slate-700">{node.name}</span>
+                            {checkState !== 'none' && (
+                                <span className="ml-auto text-xs px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full">
+                                    {getAllChildrenIds(node).filter(id => selectedKnowledge.includes(id)).length}
+                                </span>
+                            )}
+                        </button>
+                    </div>
                     {isExpanded && node.children && (
                         <div>
                             {node.children.map(child => renderTreeNode(child, level + 1))}
@@ -138,21 +246,27 @@ const KnowledgeAssessmentConfig = () => {
             );
         } else {
             // 叶子节点（知识点）
-            const isSelected = selectedKnowledge === node.id;
+            const isSelected = selectedKnowledge.includes(node.id);
             return (
-                <button
+                <div
                     key={node.id}
-                    onClick={() => setSelectedKnowledge(node.id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2 ${isSelected
-                            ? 'bg-blue-50 text-blue-600 border-2 border-blue-200 font-medium'
-                            : 'text-slate-700 hover:bg-slate-50 border-2 border-transparent'
+                    onClick={() => toggleNodeSelection(node)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2 cursor-pointer ${isSelected
+                        ? 'bg-blue-50 text-blue-600 border-2 border-blue-200 font-medium'
+                        : 'text-slate-700 hover:bg-slate-50 border-2 border-transparent'
                         }`}
                     style={{ paddingLeft: `${level * 12 + 12}px` }}
                 >
-                    <div className="w-[14px]"></div> {/* 占位符对齐 */}
+                    {/* Checkbox */}
+                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${isSelected
+                        ? 'bg-blue-500 border-blue-500'
+                        : 'border-slate-300 hover:border-blue-400'
+                        }`}>
+                        {isSelected && <Check size={12} className="text-white" />}
+                    </div>
                     <BookIcon size={14} className={isSelected ? 'text-blue-600' : 'text-slate-400'} />
                     <span>{node.name}</span>
-                </button>
+                </div>
             );
         }
     };
@@ -178,10 +292,12 @@ const KnowledgeAssessmentConfig = () => {
         alert('配置已保存！');
     };
 
-    // 获取当前配置
+    // 获取当前配置（用于只选中一个知识点时）
     const getCurrentConfig = () => {
-        if (!selectedKnowledge) return null;
-        return config[selectedKnowledge]?.[selectedDifficulty] || {
+        // 如果选了多个，返回null，使用批量配置
+        if (selectedKnowledge.length !== 1) return null;
+        const knowledgeId = selectedKnowledge[0];
+        return config[knowledgeId]?.[selectedDifficulty] || {
             linkedResources: [],
             questions: [],
             passingScore: difficultyLevels[selectedDifficulty].passingScore,
@@ -189,18 +305,28 @@ const KnowledgeAssessmentConfig = () => {
         };
     };
 
-    // 更新当前配置
+    // 更新当前配置（用于只选中一个知识点时）
     const updateCurrentConfig = (updates) => {
+        if (selectedKnowledge.length !== 1) return;
+        const knowledgeId = selectedKnowledge[0];
         setConfig(prev => ({
             ...prev,
-            [selectedKnowledge]: {
-                ...prev[selectedKnowledge],
+            [knowledgeId]: {
+                ...prev[knowledgeId],
                 [selectedDifficulty]: {
                     ...getCurrentConfig(),
                     ...updates
                 }
             }
         }));
+    };
+
+    // 批量生成评测（多个知识点）
+    const batchGenerateAssessment = () => {
+        if (selectedKnowledge.length === 0) return;
+
+        // 这里可以实现批量生成逻辑
+        alert(`将为 ${selectedKnowledge.length} 个知识点批量生成评测！`);
     };
 
     // 切换资料关联
@@ -215,13 +341,16 @@ const KnowledgeAssessmentConfig = () => {
 
     // AI生成题目
     const generateQuestions = () => {
+        if (selectedKnowledge.length !== 1) return;
+        const knowledgeId = selectedKnowledge[0];
+
         setIsGenerating(true);
         setTimeout(() => {
             const newQuestions = [
                 {
                     id: Date.now() + '_1',
                     type: 'multiple-choice',
-                    question: `关于${getKnowledgePointName(selectedKnowledge)}，以下说法正确的是？`,
+                    question: `关于${getKnowledgePointName(knowledgeId)}，以下说法正确的是？`,
                     options: ['只有光具有波粒二象性', '所有微观粒子都具有波粒二象性', '波粒二象性只在宏观世界存在', '波粒二象性违反能量守恒'],
                     correctAnswer: 1,
                     score: 10,
@@ -298,7 +427,7 @@ const KnowledgeAssessmentConfig = () => {
                         </button>
                         <div>
                             <h1 className="text-xl font-bold text-slate-800">知识点评测配置</h1>
-                            <p className="text-xs text-slate-500">个性化自适应评测题库管理</p>
+                            <p className="text-sm text-slate-500">用于对学生进行知识点/章节评价。实际教学章节/知识点评价一般就3-5道题，不能过于复杂</p>
                         </div>
                     </div>
                     <button
@@ -316,9 +445,19 @@ const KnowledgeAssessmentConfig = () => {
                     <div className="col-span-3">
                         <div className="bg-white rounded-xl border border-slate-200 p-4">
                             <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-sm font-bold text-slate-800">知识点目录</h3>
-                                <button className="text-xs text-blue-600 hover:text-blue-700">
-                                    全部展开
+                                <h3 className="text-sm font-bold text-slate-800">
+                                    知识点目录
+                                    {selectedKnowledge.length > 0 && (
+                                        <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full">
+                                            {selectedKnowledge.length}
+                                        </span>
+                                    )}
+                                </h3>
+                                <button
+                                    onClick={toggleSelectAll}
+                                    className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                                >
+                                    {selectedKnowledge.length > 0 ? '取消全选' : '全选'}
                                 </button>
                             </div>
                             <div className="space-y-1 max-h-[70vh] overflow-y-auto">
@@ -328,7 +467,69 @@ const KnowledgeAssessmentConfig = () => {
                     </div>
 
                     {/* 中间和右侧：配置区域 */}
-                    {selectedKnowledge ? (
+                    {selectedKnowledge.length === 0 ? (
+                        <div className="col-span-9 flex items-center justify-center">
+                            <div className="text-center text-slate-400">
+                                <FileText size={64} className="mx-auto mb-4 opacity-50" />
+                                <p className="text-lg font-medium">请从左侧选择知识点</p>
+                                <p className="text-sm">支持单选或多选知识点配置评测</p>
+                            </div>
+                        </div>
+                    ) : selectedKnowledge.length > 1 ? (
+                        /* 多选模式：批量配置 */
+                        <div className="col-span-9">
+                            <div className="bg-white rounded-xl border border-slate-200 p-6">
+                                <div className="text-center py-8">
+                                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Check size={32} className="text-blue-600" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-slate-800 mb-2">
+                                        已选择 {selectedKnowledge.length} 个知识点
+                                    </h3>
+                                    <p className="text-slate-600 mb-6">
+                                        您可以为这些知识点批量生成评测
+                                    </p>
+
+                                    {/* 已选知识点列表 */}
+                                    <div className="max-w-2xl mx-auto mb-6">
+                                        <div className="bg-slate-50 rounded-lg p-4 max-h-48 overflow-y-auto">
+                                            {selectedKnowledge.map(id => (
+                                                <div key={id} className="flex items-center justify-between py-2 px-3 hover:bg-white rounded transition-colors">
+                                                    <div className="flex items-center gap-2">
+                                                        <BookIcon size={14} className="text-blue-600" />
+                                                        <span className="text-sm text-slate-700">{getKnowledgePointName(id)}</span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => toggleNodeSelection({ id, type: 'node' })}
+                                                        className="text-slate-400 hover:text-red-600 transition-colors"
+                                                    >
+                                                        <X size={16} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* 批量操作按钮 */}
+                                    <div className="flex items-center justify-center gap-3">
+                                        <button
+                                            onClick={batchGenerateAssessment}
+                                            className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:opacity-90 transition-all flex items-center gap-2"
+                                        >
+                                            <Sparkles size={20} />
+                                            批量生成评测
+                                        </button>
+                                        <button
+                                            onClick={() => setSelectedKnowledge([])}
+                                            className="px-6 py-3 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors"
+                                        >
+                                            清空选择
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
                         <>
                             {/* 中间：难度层级和资料 */}
                             <div className="col-span-4">
@@ -341,8 +542,8 @@ const KnowledgeAssessmentConfig = () => {
                                                 key={key}
                                                 onClick={() => setSelectedDifficulty(key)}
                                                 className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all ${selectedDifficulty === key
-                                                        ? `bg-${level.color}-50 border-${level.color}-300`
-                                                        : 'border-slate-200 hover:bg-slate-50'
+                                                    ? `bg-${level.color}-50 border-${level.color}-300`
+                                                    : 'border-slate-200 hover:bg-slate-50'
                                                     }`}
                                             >
                                                 <div className="flex items-center justify-between mb-1">
@@ -374,8 +575,8 @@ const KnowledgeAssessmentConfig = () => {
                                                 <label
                                                     key={resource.id}
                                                     className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${isLinked
-                                                            ? 'bg-blue-50 border-blue-200'
-                                                            : 'border-slate-200 hover:bg-slate-50'
+                                                        ? 'bg-blue-50 border-blue-200'
+                                                        : 'border-slate-200 hover:bg-slate-50'
                                                         }`}
                                                 >
                                                     <input
@@ -442,8 +643,8 @@ const KnowledgeAssessmentConfig = () => {
                                                                 <div className="flex-1">
                                                                     <div className="flex items-center gap-2 mb-1">
                                                                         <span className={`px-2 py-0.5 rounded text-xs font-medium ${q.type === 'multiple-choice' ? 'bg-blue-100 text-blue-700' :
-                                                                                q.type === 'true-false' ? 'bg-green-100 text-green-700' :
-                                                                                    'bg-purple-100 text-purple-700'
+                                                                            q.type === 'true-false' ? 'bg-green-100 text-green-700' :
+                                                                                'bg-purple-100 text-purple-700'
                                                                             }`}>
                                                                             {q.type === 'multiple-choice' ? '选择题' :
                                                                                 q.type === 'true-false' ? '判断题' : '简答题'}
@@ -542,14 +743,6 @@ const KnowledgeAssessmentConfig = () => {
                                 </div>
                             </div>
                         </>
-                    ) : (
-                        <div className="col-span-9 flex items-center justify-center">
-                            <div className="text-center text-slate-400">
-                                <FileText size={64} className="mx-auto mb-4 opacity-50" />
-                                <p className="text-lg font-medium">请从左侧选择一个知识点</p>
-                                <p className="text-sm">然后开始配置个性化评测题库</p>
-                            </div>
-                        </div>
                     )}
                 </div>
             </main>

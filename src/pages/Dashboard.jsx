@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { BellOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import { UiverseCard, UiverseButton } from '../components/uiverse';
+import { BookOpen, Play } from 'lucide-react';
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -41,6 +42,30 @@ const Dashboard = () => {
                 </div>
             </header>
 
+            {/* 继续学习快捷入口 */}
+            <div className="max-w-7xl mx-auto px-6 -mt-8 mb-8 relative z-10">
+                <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl p-6 shadow-2xl">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                                <BookOpen size={32} className="text-white" />
+                            </div>
+                            <div className="text-white">
+                                <h2 className="text-xl font-bold mb-1">数字教师 - 继续学习</h2>
+                                <p className="text-sm text-white/80">上次学到：函数的概念与性质 - 第3节</p >
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => navigate('/learning-dialogue/current-node')}
+                            className="px-8 py-3 bg-white text-purple-600 rounded-xl font-bold hover:shadow-lg hover:scale-105 transition-all flex items-center gap-2"
+                        >
+                            <Play size={20} />
+                            立即继续
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <main className="max-w-7xl mx-auto px-4 py-16 relative z-10">
                 <div className="text-center mb-16">
                     <h1 className="text-5xl md:text-6xl font-bold text-slate-800 mb-4 tracking-tight">
@@ -71,7 +96,7 @@ const Dashboard = () => {
                                     </div>
                                 </div>
                             </div>
-                            <h3 className="text-xl font-bold text-slate-800 mb-2">我的学习路径</h3>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2">我的学习地图</h3>
                             <p className="text-slate-600 text-xs leading-relaxed mb-6 h-8 line-clamp-2">
                                 查看你的专属AI定制学习旅程。
                             </p>
@@ -81,7 +106,7 @@ const Dashboard = () => {
                                 onClick={() => navigate('/my-learning-path')}
                                 className="w-full"
                             >
-                                进入学习路径
+                                进入学习地图
                             </UiverseButton>
                         </div>
                     </UiverseCard>
@@ -172,15 +197,15 @@ const Dashboard = () => {
                             </div>
                             <h3 className="text-xl font-bold text-slate-800 mb-2">AI 错题本</h3>
                             <p className="text-slate-600 text-xs leading-relaxed mb-6 h-8 line-clamp-2">
-                                智能诊断薄弱点,个性化推荐补救。
+                                智能错题分析，帮助你查漏补缺。
                             </p>
                             <UiverseButton
-                                variant="primary"
+                                variant="warning"
                                 size="medium"
                                 onClick={() => navigate('/error-log')}
-                                className="w-full bg-gradient-to-r from-orange-500 to-red-500 border-none"
+                                className="w-full"
                             >
-                                进入错题本
+                                查看错题本
                             </UiverseButton>
                         </div>
                     </UiverseCard>

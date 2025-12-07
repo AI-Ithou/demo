@@ -117,6 +117,84 @@ const StudentAnalysisReport = () => {
                     )}
                 </div>
 
+                {/* 挂科率统计分析 */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="bg-white rounded-2xl border-2 border-slate-200 p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
+                                    <XCircle className="text-white" size={20} />
+                                </div>
+                                <h3 className="font-bold text-slate-800">挂科率</h3>
+                            </div>
+                        </div>
+                        <div className="text-4xl font-bold text-red-600 mb-2">
+                            {((report.failureData?.failedCount || 0) / (report.failureData?.totalCourses || 1) * 100).toFixed(1)}%
+                        </div>
+                        <p className="text-sm text-slate-600">
+                            {report.failureData?.failedCount || 0}/{report.failureData?.totalCourses || 12} 门课程
+                        </p>
+                        {(report.failureData?.failedCount || 0) > 0 && (
+                            <div className="mt-4 pt-4 border-t border-slate-100">
+                                <div className="text-xs text-slate-500 mb-2">挂科科目</div>
+                                <div className="flex flex-wrap gap-2">
+                                    {(report.failureData?.failedSubjects || ['数学', '物理']).map((subject, idx) => (
+                                        <span key={idx} className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs">
+                                            {subject}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="bg-white rounded-2xl border-2 border-slate-200 p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
+                                    <AlertTriangle className="text-white" size={20} />
+                                </div>
+                                <h3 className="font-bold text-slate-800">预警科目</h3>
+                            </div>
+                        </div>
+                        <div className="text-4xl font-bold text-orange-600 mb-2">
+                            {report.failureData?.warningCount || 0}
+                        </div>
+                        <p className="text-sm text-slate-600">
+                            成绩60-70分科目
+                        </p>
+                        {(report.failureData?.warningCount || 0) > 0 && (
+                            <div className="mt-4 pt-4 border-t border-slate-100">
+                                <div className="text-xs text-slate-500 mb-2">需要关注</div>
+                                <div className="flex flex-wrap gap-2">
+                                    {(report.failureData?.warningSubjects || ['化学']).map((subject, idx) => (
+                                        <span key={idx} className="px-2 py-1 bg-orange-50 text-orange-600 rounded text-xs">
+                                            {subject}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="bg-white rounded-2xl border-2 border-slate-200 p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                                    <CheckCircle2 className="text-white" size={20} />
+                                </div>
+                                <h3 className="font-bold text-slate-800">及格率</h3>
+                            </div>
+                        </div>
+                        <div className="text-4xl font-bold text-emerald-600 mb-2">
+                            {((1 - ((report.failureData?.failedCount || 0) / (report.failureData?.totalCourses || 1))) * 100).toFixed(1)}%
+                        </div>
+                        <p className="text-sm text-slate-600">
+                            {(report.failureData?.totalCourses || 12) - (report.failureData?.failedCount || 0)}/{report.failureData?.totalCourses || 12} 门课程及格
+                        </p>
+                    </div>
+                </div>
+
                 {/* 能力维度分析 */}
                 <div className="bg-white rounded-2xl border border-slate-200 p-8 mb-8">
                     <div className="flex items-center gap-2 mb-6">
@@ -135,8 +213,8 @@ const StudentAnalysisReport = () => {
                                                         key === 'application' ? '应用能力' : key}
                                     </span>
                                     <span className={`px-3 py-1 rounded-lg text-sm font-bold ${ability.score >= 80 ? 'bg-emerald-100 text-emerald-700' :
-                                            ability.score >= 60 ? 'bg-blue-100 text-blue-700' :
-                                                'bg-orange-100 text-orange-700'
+                                        ability.score >= 60 ? 'bg-blue-100 text-blue-700' :
+                                            'bg-orange-100 text-orange-700'
                                         }`}>
                                         {ability.level}
                                     </span>
@@ -145,8 +223,8 @@ const StudentAnalysisReport = () => {
                                     <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
                                         <div
                                             className={`h-full transition-all ${ability.score >= 80 ? 'bg-emerald-500' :
-                                                    ability.score >= 60 ? 'bg-blue-500' :
-                                                        'bg-orange-500'
+                                                ability.score >= 60 ? 'bg-blue-500' :
+                                                    'bg-orange-500'
                                                 }`}
                                             style={{ width: `${ability.score}%` }}
                                         />
@@ -179,8 +257,8 @@ const StudentAnalysisReport = () => {
                                             <div className="flex items-center gap-2 mb-2">
                                                 <h3 className="font-bold text-slate-800">{weakness.title}</h3>
                                                 <span className={`px-2 py-1 text-xs rounded ${weakness.severity === 'high' ? 'bg-red-100 text-red-700' :
-                                                        weakness.severity === 'medium' ? 'bg-orange-100 text-orange-700' :
-                                                            'bg-blue-100 text-blue-700'
+                                                    weakness.severity === 'medium' ? 'bg-orange-100 text-orange-700' :
+                                                        'bg-blue-100 text-blue-700'
                                                     }`}>
                                                     {weakness.severity === 'high' ? '严重' :
                                                         weakness.severity === 'medium' ? '中等' : '轻微'}
@@ -222,8 +300,8 @@ const StudentAnalysisReport = () => {
                                     <div className="flex items-center justify-between mb-3">
                                         <h3 className="font-bold text-slate-800 text-lg">{rec.title}</h3>
                                         <span className={`px-3 py-1 rounded-lg text-xs font-bold ${rec.priority === 'high' ? 'bg-red-200 text-red-800' :
-                                                rec.priority === 'medium' ? 'bg-orange-200 text-orange-800' :
-                                                    'bg-blue-200 text-blue-800'
+                                            rec.priority === 'medium' ? 'bg-orange-200 text-orange-800' :
+                                                'bg-blue-200 text-blue-800'
                                             }`}>
                                             {rec.priority === 'high' ? '高优先级' :
                                                 rec.priority === 'medium' ? '中优先级' : '低优先级'}
@@ -276,8 +354,8 @@ const StudentAnalysisReport = () => {
                             <div className="bg-white/20 rounded-xl p-4">
                                 <div className="text-sm text-purple-100 mb-1">风险等级</div>
                                 <div className={`text-2xl font-bold ${report.prediction.riskLevel === 'low' ? 'text-emerald-300' :
-                                        report.prediction.riskLevel === 'medium' ? 'text-orange-300' :
-                                            'text-red-300'
+                                    report.prediction.riskLevel === 'medium' ? 'text-orange-300' :
+                                        'text-red-300'
                                     }`}>
                                     {report.prediction.riskLevel === 'low' ? '低风险' :
                                         report.prediction.riskLevel === 'medium' ? '中风险' : '高风险'}

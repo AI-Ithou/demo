@@ -124,7 +124,7 @@ const MyLearningPathPage = () => {
                     </button>
                     <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
                         <Sparkles size={24} className="text-blue-500" />
-                        我的智能学习路径
+                        我的智能学习地图
                     </h1>
 
                     {/* 进度指示器 */}
@@ -336,7 +336,7 @@ const MyLearningPathPage = () => {
                                     <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
                                         <Sparkles size={16} className="text-white" />
                                     </div>
-                                    学习路径规划
+                                    学习地图规划
                                 </h2>
 
                                 {/* 图例 */}

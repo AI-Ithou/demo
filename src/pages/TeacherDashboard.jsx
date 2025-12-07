@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Users, Clock, Calendar, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+    Users, BookOpen, Clock, TrendingUp,
+    FileText, Sparkles, Plus, ChevronRight, Calendar
+} from 'lucide-react';
 import { GlassCard, GradientButton, LiquidProgress } from '../components/uiverse';
 
 const TeacherDashboard = () => {
@@ -73,7 +76,7 @@ const TeacherDashboard = () => {
                             <h1 className="text-3xl font-bold text-gray-800">教师工作台</h1>
                             <p className="text-gray-600 mt-1">管理您的课程和学生</p>
                         </motion.div>
-                        <motion.div 
+                        <motion.div
                             className="flex items-center gap-4"
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -108,7 +111,7 @@ const TeacherDashboard = () => {
                             purple: { gradient: 'from-purple-500 to-purple-600', glow: 'shadow-glow-purple' }
                         };
                         const colors = colorMap[stat.color];
-                        
+
                         return (
                             <motion.div
                                 key={idx}
@@ -116,13 +119,13 @@ const TeacherDashboard = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1, duration: 0.5 }}
                             >
-                                <GlassCard 
+                                <GlassCard
                                     variant="standard"
                                     hover={true}
                                     className="p-6 h-full"
                                 >
                                     <div className="flex items-start justify-between mb-4">
-                                        <motion.div 
+                                        <motion.div
                                             className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${colors.gradient} flex items-center justify-center ${colors.glow} shimmer-effect`}
                                             whileHover={{ scale: 1.1, rotate: 5 }}
                                             transition={{ type: "spring", stiffness: 400 }}
@@ -141,25 +144,22 @@ const TeacherDashboard = () => {
                 {/* 课程区域 */}
                 <div className="space-y-6">
                     <div className="flex items-center justify-between">
-                        <motion.h2 
+                        <motion.h2
                             className="text-2xl font-bold text-gray-800"
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                         >
                             我的课程
                         </motion.h2>
-                        <motion.div
+                        <motion.button
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
+                            onClick={() => navigate('/teacher/course/create')}
+                            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center gap-2"
                         >
-                            <GradientButton
-                                variant="primary"
-                                size="large"
-                                shimmer={true}
-                            >
-                                + 创建新课程
-                            </GradientButton>
-                        </motion.div>
+                            <Plus size={20} />
+                            创建新课程
+                        </motion.button>
                     </div>
 
                     {/* 液态玻璃课程卡片网格 */}
@@ -189,7 +189,7 @@ const TeacherDashboard = () => {
                                         />
                                         {/* 渐变蒙版 */}
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                                        
+
                                         {/* 类型标签 */}
                                         <div className="absolute top-4 left-4">
                                             <span className="px-3 py-1.5 bg-white/90 backdrop-blur-md text-gray-700 rounded-xl text-xs font-semibold shadow-lg">
@@ -221,8 +221,8 @@ const TeacherDashboard = () => {
                                                 <span className="font-medium">课程进度</span>
                                                 <span className="font-bold text-gray-800 tabular-nums">{course.progress}%</span>
                                             </div>
-                                            <LiquidProgress 
-                                                value={course.progress} 
+                                            <LiquidProgress
+                                                value={course.progress}
                                                 variant="blue"
                                                 shimmer={true}
                                             />
@@ -232,7 +232,7 @@ const TeacherDashboard = () => {
                                         {course.pendingReview > 0 && (
                                             <div className="flex items-center justify-between pt-4 border-t border-gray-200/50">
                                                 <span className="text-sm text-gray-600 font-medium">待批改作业</span>
-                                                <motion.span 
+                                                <motion.span
                                                     className="px-3 py-1.5 bg-gradient-to-r from-orange-100 to-orange-50 text-orange-700 rounded-lg text-sm font-bold"
                                                     animate={{ scale: [1, 1.05, 1] }}
                                                     transition={{ duration: 2, repeat: Infinity }}
@@ -243,7 +243,7 @@ const TeacherDashboard = () => {
                                         )}
 
                                         {/* 操作按钮 */}
-                                        <motion.button 
+                                        <motion.button
                                             className="w-full py-3 bg-gray-50/50 text-gray-700 rounded-xl font-medium hover:bg-blue-50 hover:text-blue-600 transition-all duration-300 flex items-center justify-center gap-2 group/btn"
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
@@ -257,8 +257,8 @@ const TeacherDashboard = () => {
                         ))}
                     </div>
                 </div>
-            </main>
-        </div>
+            </main >
+        </div >
     );
 };
 

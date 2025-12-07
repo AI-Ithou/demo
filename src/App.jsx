@@ -40,6 +40,14 @@ import StudentAnalysisReport from './pages/StudentAnalysisReport';
 import KnowledgeAssessmentConfig from './pages/KnowledgeAssessmentConfig';
 import TeacherResourceManager from './pages/TeacherResourceManager';
 import TeachingPreviewMode from './pages/TeachingPreviewMode';
+import LessonPlanManager from './pages/LessonPlanManager';
+import LessonPlanCreate from './pages/LessonPlanCreate';
+import LessonPlanEditor from './pages/LessonPlanEditor';
+import TemplateManager from './pages/TemplateManager';
+import StudentEvaluationPage from './pages/StudentEvaluationPage';
+import StudentEvaluationHistory from './pages/StudentEvaluationHistory';
+import StudentManagement from './pages/StudentManagement';
+import ClassManagement from './pages/ClassManagement';
 
 // Placeholder components for future pages to avoid build errors
 const PlaceholderPage = ({ title }) => (
@@ -97,6 +105,14 @@ function App() {
       <Route path="/teacher/assessment-config" element={<KnowledgeAssessmentConfig />} />
       <Route path="/teacher/resources" element={<TeacherResourceManager />} />
       <Route path="/teacher/teaching-preview" element={<TeachingPreviewMode />} />
+      <Route path="/teacher/lesson-plans" element={<LessonPlanManager />} />
+      <Route path="/teacher/lesson-plans/create" element={<LessonPlanCreate />} />
+      <Route path="/teacher/lesson-plans/edit/:planId" element={<LessonPlanEditor />} />
+      <Route path="/teacher/templates" element={<TemplateManager />} />
+      <Route path="/teacher/student-evaluation" element={<StudentEvaluationPage />} />
+      <Route path="/teacher/student-evaluation/:studentId" element={<StudentEvaluationHistory />} />
+      <Route path="/teacher/students" element={<StudentManagement />} />
+      <Route path="/teacher/classes" element={<ClassManagement />} />
     </Routes>
   );
 }

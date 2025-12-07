@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, TrendingUp, BookOpen, Clock, Sparkles, Brain, Target, Eye } from 'lucide-react';
+import { ArrowLeft, Users, TrendingUp, BookOpen, Clock, Sparkles, Brain, Target, Eye, Star } from 'lucide-react';
 import { MOCK_STUDENTS, STUDENT_PATH_ASSIGNMENTS, StudentPathManager } from '../data/student_path_data';
+import { studentsData } from '../data/student_evaluation_data';
 
 const ClassPathOverview = () => {
     const navigate = useNavigate();
@@ -22,6 +23,12 @@ const ClassPathOverview = () => {
         return { ...student, assignment };
     };
 
+    // 获取学生评价数据
+    const getStudentEvaluation = (studentId) => {
+        // 尝试从评价数据中找到对应的学生
+        return studentsData.find(s => s.name === students.find(st => st.id === studentId)?.name) || null;
+    };
+
     return (
         <div className="min-h-screen bg-slate-50">
             {/* Header */}
@@ -40,7 +47,7 @@ const ClassPathOverview = () => {
                                     <Users className="text-white" size={20} />
                                 </div>
                                 <div>
-                                    <h1 className="text-xl font-bold text-slate-800">班级学习路径总览</h1>
+                                    <h1 className="text-xl font-bold text-slate-800">班级学习地图</h1>
                                     <p className="text-sm text-slate-500">高一(3)班 • {students.length}名学生</p>
                                 </div>
                             </div>
@@ -221,6 +228,47 @@ const ClassPathOverview = () => {
                                                     </div>
                                                 </div>
                                             )}
+
+                                            {/* 学生评价数据 */}
+                                            {(() => {
+                                                const evalData = getStudentEvaluation(student.id);
+                                                if (evalData) {
+                                                    return (
+                                                        <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg p-4 border border-cyan-200 mt-3">
+                                                            <div className="flex items-center justify-between mb-2">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Star size={16} className="text-cyan-600" />
+                                                                    <span className="text-sm font-semibold text-cyan-700">学生评价</span>
+                                                                </div>
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        navigate(`/teacher/student-evaluation/${evalData.id}`);
+                                                                    }}
+                                                                    className="text-xs text-cyan-600 hover:text-cyan-700 font-medium"
+                                                                >
+                                                                    查看详情 →
+                                                                </button>
+                                                            </div>
+                                                            <div className="grid grid-cols-3 gap-2 text-sm">
+                                                                <div>
+                                                                    <div className="text-xs text-slate-500">总评分</div>
+                                                                    <div className="text-lg font-bold text-blue-600">{evalData.totalScore}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-xs text-slate-500">评价次数</div>
+                                                                    <div className="text-lg font-bold text-green-600">{evalData.evaluationCount}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-xs text-slate-500">班级排名</div>
+                                                                    <div className="text-lg font-bold text-purple-600">#{evalData.rank}</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                }
+                                                return null;
+                                            })()}
 
                                             {/* AI分析按钮 */}
                                             <div className="mt-4 pt-4 border-t border-slate-200">

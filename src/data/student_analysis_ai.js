@@ -22,6 +22,15 @@ export const STUDENT_ANALYSIS_REPORTS = {
             ]
         },
 
+        // 挂科率数据
+        failureData: {
+            totalCourses: 12,  // 总课程数
+            failedCount: 2,  // 挂科数量
+            failedSubjects: ['高等数学', '物理学'],  // 挂科科目
+            warningCount: 1,  // 预警科目数
+            warningSubjects: ['化学']  // 预警科目
+        },
+
         // 能力维度分析
         abilities: {
             algebra: { score: 70, level: '中等', comment: '代数运算基础扎实，但在抽象代数概念理解上需要加强' },
@@ -134,6 +143,13 @@ export class StudentAnalysisAI {
                 score: student.abilities.overall,
                 comment: 'AI分析生成中...',
                 trends: []
+            },
+            failureData: {
+                totalCourses: 12,
+                failedCount: Math.floor(Math.random() * 3),
+                failedSubjects: ['高等数学', '物理学'].slice(0, Math.floor(Math.random() * 2)),
+                warningCount: Math.floor(Math.random() * 3),
+                warningSubjects: ['化学', '英语'].slice(0, Math.floor(Math.random() * 2))
             },
             abilities: {
                 algebra: { score: student.abilities.algebra, level: '待评估', comment: '数据收集中' },

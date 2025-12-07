@@ -68,7 +68,7 @@ const StudentPathDetail = () => {
                             className="w-12 h-12 rounded-full border-2 border-white shadow-lg"
                         />
                         <div className="flex-1">
-                            <h1 className="text-xl font-bold text-slate-800">{student.name} 的学习路径</h1>
+                            <h1 className="text-xl font-bold text-slate-800">{student.name} 的学习地图</h1>
                             <p className="text-sm text-slate-500">学号: {student.studentId} • {assignment.pathName}</p>
                         </div>
                         <div className="text-right">
@@ -136,9 +136,9 @@ const StudentPathDetail = () => {
                     </div>
                 </div>
 
-                {/* 学习路径可视化 */}
+                {/* 学习地图可视化 */}
                 <div className="bg-white rounded-2xl border border-slate-200 p-8 mb-8">
-                    <h2 className="text-lg font-bold text-slate-800 mb-6">学习路径图</h2>
+                    <h2 className="text-lg font-bold text-slate-800 mb-6">学习地图图</h2>
 
                     {/* 时间线样式的路径图 */}
                     <div className="relative">

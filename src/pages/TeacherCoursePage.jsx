@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckSquare, BookOpen, Settings, Sparkles, Brain, Target, Database, BarChart3, Users } from 'lucide-react';
+import { ArrowLeft, CheckSquare, BookOpen, Settings, Sparkles, Brain, Target, Database, BarChart3, Users, Star } from 'lucide-react';
 
 const TeacherCoursePage = () => {
     const navigate = useNavigate();
@@ -141,13 +141,13 @@ const TeacherCoursePage = () => {
 
                         {activeTab === 'manage' && (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                {/* 学习路径管理 */}
+                                {/* 学习地图管理 */}
                                 <div onClick={() => navigate('/teacher/path')} className="bg-white rounded-xl border-2 border-slate-200 p-6 hover:border-purple-300 hover:shadow-lg transition-all cursor-pointer group">
                                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-3">
                                         <BookOpen size={24} className="text-white" />
                                     </div>
-                                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-purple-600 mb-2">学习路径管理</h3>
-                                    <p className="text-sm text-slate-600">创建和管理个性化学习路径</p>
+                                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-purple-600 mb-2">学习地图管理</h3>
+                                    <p className="text-sm text-slate-600">创建和管理个性化学习地图</p>
                                 </div>
 
                                 {/* 班级路径总览 */}
@@ -169,12 +169,61 @@ const TeacherCoursePage = () => {
                                 </div>
 
                                 {/* 知识点评测配置 */}
-                                <div onClick={() => navigate('/teacher/assessment-config')} className="bg-white rounded-xl border-2 border-slate-200 p-6 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer group">
+                                <div onClick={() => navigate(`/teacher/assessment-config?courseId=${courseData.courseCode}`)} className="bg-white rounded-xl border-2 border-slate-200 p-6 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer group">
                                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-3">
                                         <CheckSquare size={24} className="text-white" />
                                     </div>
                                     <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 mb-2">知识点评测配置</h3>
-                                    <p className="text-sm text-slate-600">个性化评测题库管理</p>
+                                    <p className="text-sm text-slate-600">配置知识点评价，一般3-5道题</p>
+                                </div>
+
+                                {/* 学生管理 */}
+                                <div onClick={() => navigate('/teacher/students')} className="bg-white rounded-xl border-2 border-slate-200 p-6 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer group">
+                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-3">
+                                        <Users size={24} className="text-white" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 mb-2">学生管理</h3>
+                                    <p className="text-sm text-slate-600">管理学生信息、档案</p>
+                                </div>
+
+                                {/* 班级管理 */}
+                                <div onClick={() => navigate('/teacher/classes')} className="bg-white rounded-xl border-2 border-slate-200 p-6 hover:border-emerald-300 hover:shadow-lg transition-all cursor-pointer group">
+                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mb-3">
+                                        <BookOpen size={24} className="text-white" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-emerald-600 mb-2">班级管理</h3>
+                                    <p className="text-sm text-slate-600">管理班级信息、统计</p>
+                                </div>
+
+                                {/* 学生评价系统 */}
+                                <div onClick={() => navigate('/teacher/student-evaluation')} className="bg-white rounded-xl border-2 border-slate-200 p-6 hover:border-cyan-300 hover:shadow-lg transition-all cursor-pointer group">
+                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center mb-3">
+                                        <Star size={24} className="text-white" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-cyan-600 mb-2">学生评价系统</h3>
+                                    <p className="text-sm text-slate-600">记录学生表现与加分评价</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'ai-tools' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {/* AI教案生成 */}
+                                <div onClick={() => navigate(`/teacher/lesson-plans/create?courseId=${courseData.courseCode}`)} className="bg-white rounded-xl border-2 border-slate-200 p-6 hover:border-indigo-300 hover:shadow-lg transition-all cursor-pointer group">
+                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-3">
+                                        <Sparkles size={24} className="text-white" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-indigo-600 mb-2">AI教案生成</h3>
+                                    <p className="text-sm text-slate-600">基于课程内容智能生成教案</p>
+                                </div>
+
+                                {/* 教案管理 */}
+                                <div onClick={() => navigate('/teacher/lesson-plans')} className="bg-white rounded-xl border-2 border-slate-200 p-6 hover:border-purple-300 hover:shadow-lg transition-all cursor-pointer group">
+                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-3">
+                                        <BookOpen size={24} className="text-white" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-purple-600 mb-2">教案管理</h3>
+                                    <p className="text-sm text-slate-600">查看和管理所有教案</p>
                                 </div>
                             </div>
                         )}
