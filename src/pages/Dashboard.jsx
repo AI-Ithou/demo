@@ -1,30 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { BellOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import { UiverseCard, UiverseButton } from '../components/uiverse';
 import { BookOpen, Play } from 'lucide-react';
+import AssessmentAgentSidebar from '../components/AssessmentAgentSidebar';
+import AssessmentAgentChat from '../components/AssessmentAgentChat';
 
 const Dashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { difficulty, userType } = location.state || { difficulty: 'medium', userType: 'logical' };
 
+    // Agent Integration State
+    const [selectedAgentId, setSelectedAgentId] = useState(null);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
     const handleNavigate = (section) => {
         navigate('/report', { state: { difficulty, userType, scrollTo: section } });
     };
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 font-sans relative overflow-hidden">
+    const renderDashboardContent = () => (
+        <div className="relative min-h-full">
             {/* Animated Background Pattern */}
-            <div className="absolute inset-0 opacity-30">
+            <div className="absolute inset-0 opacity-30 pointer-events-none sticky top-0">
                 <div className="absolute top-0 left-0 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
                 <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
                 <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
             </div>
 
             {/* Header */}
-            <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 py-4 px-6 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+            <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 py-4 px-6 flex justify-between items-center sticky top-0 z-50 shadow-sm relative">
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -43,7 +49,7 @@ const Dashboard = () => {
             </header>
 
             {/* 继续学习快捷入口 */}
-            <div className="max-w-7xl mx-auto px-6 -mt-8 mb-8 relative z-10">
+            <div className="max-w-7xl mx-auto px-6 mt-8 mb-8 relative z-10">
                 <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl p-6 shadow-2xl">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
@@ -66,7 +72,7 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            <main className="max-w-7xl mx-auto px-4 py-16 relative z-10">
+            <main className="max-w-7xl mx-auto px-6 py-8 relative z-10 pb-20">
                 <div className="text-center mb-16">
                     <h1 className="text-5xl md:text-6xl font-bold text-slate-800 mb-4 tracking-tight">
                         欢迎回来,同学!
@@ -300,33 +306,53 @@ const Dashboard = () => {
                             </p>
                             <UiverseButton
                                 variant="primary"
-                                size="medium"
-                                onClick={() => navigate('/course/1/materials')}
+                                onClick={() => setSelectedAgentId('agent-1')} // Or open agent list
                                 className="w-full"
                             >
-                                浏览资料
+                                开始对话
                             </UiverseButton>
                         </div>
                     </UiverseCard>
                 </div>
-            </main>
 
-            <style jsx>{`
-                @keyframes blob {
-                    0%, 100% { transform: translate(0, 0) scale(1); }
-                    33% { transform: translate(30px, -50px) scale(1.1); }
-                    66% { transform: translate(-20px, 20px) scale(0.9); }
-                }
-                .animate-blob {
-                    animation: blob 7s infinite;
-                }
-                .animation-delay-2000 {
-                    animation-delay: 2s;
-                }
-                .animation-delay-4000 {
-                    animation-delay: 4s;
-                }
-            `}</style>
+                <style jsx>{`
+                    @keyframes blob {
+                        0%, 100% { transform: translate(0, 0) scale(1); }
+                        33% { transform: translate(30px, -50px) scale(1.1); }
+                        66% { transform: translate(-20px, 20px) scale(0.9); }
+                    }
+                    .animate-blob {
+                        animation: blob 7s infinite;
+                    }
+                    .animation-delay-2000 {
+                        animation-delay: 2s;
+                    }
+                    .animation-delay-4000 {
+                        animation-delay: 4s;
+                    }
+                `}</style>
+            </main>
+        </div>
+    );
+
+    return (
+        <div className="flex h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 font-sans">
+            {/* Left Sidebar */}
+            <AssessmentAgentSidebar
+                selectedAgentId={selectedAgentId}
+                onSelectAgent={setSelectedAgentId}
+                isCollapsed={isSidebarCollapsed}
+                onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            />
+
+            {/* Main Content Area */}
+            <div className="flex-1 h-full overflow-y-auto relative custom-scrollbar">
+                {selectedAgentId ? (
+                    <AssessmentAgentChat agentId={selectedAgentId} />
+                ) : (
+                    renderDashboardContent()
+                )}
+            </div>
         </div>
     );
 };

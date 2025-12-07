@@ -4,7 +4,7 @@ import { Avatar, Dropdown, Progress } from 'antd';
 import { UserOutlined, RightOutlined, BellOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import { GlassCard, GradientButton, LiquidProgress, CircularProgress } from '../components/uiverse';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, Bot, Sparkles } from 'lucide-react';
 
 const StudentHome = () => {
     const navigate = useNavigate();
@@ -47,7 +47,7 @@ const StudentHome = () => {
         if (!course.isAssessed) {
             navigate('/goal-setting');
         } else {
-            navigate('/report');
+            navigate('/dashboard');
         }
     };
 
@@ -63,13 +63,13 @@ const StudentHome = () => {
     ];
 
     return (
-        <div className="min-h-screen font-sans">
+        <div className="min-h-screen font-sans bg-gray-50">
             {/* 液态玻璃导航栏 */}
             <div className="bg-white/75 backdrop-blur-2xl border-b border-gray-200/30 shadow-glass glass-highlight sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center justify-between">
                         {/* Logo */}
-                        <motion.div 
+                        <motion.div
                             className="flex items-center gap-3"
                             whileHover={{ scale: 1.02 }}
                         >
@@ -78,7 +78,7 @@ const StudentHome = () => {
                             </div>
                             <span className="font-bold text-lg text-gray-900">炎枢平台</span>
                         </motion.div>
-                        
+
                         {/* 右侧操作 */}
                         <div className="flex items-center gap-4">
                             <GradientButton
@@ -92,10 +92,10 @@ const StudentHome = () => {
                             </GradientButton>
                             <Dropdown menu={{ items }} placement="bottomRight">
                                 <motion.div whileHover={{ scale: 1.05 }}>
-                                    <Avatar 
-                                        size={40} 
-                                        icon={<UserOutlined />} 
-                                        className="bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 cursor-pointer border-2 border-white shadow-md" 
+                                    <Avatar
+                                        size={40}
+                                        icon={<UserOutlined />}
+                                        className="bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 cursor-pointer border-2 border-white shadow-md"
                                     />
                                 </motion.div>
                             </Dropdown>
@@ -104,242 +104,106 @@ const StudentHome = () => {
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* 液态玻璃 Hero 横幅 */}
-                <motion.div 
-                    className="relative rounded-3xl p-10 text-white shadow-glass-deep mb-10 overflow-hidden"
-                    style={{
-                        background: 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)',
-                    }}
+            {/* 极简欢迎区域 */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
+                    className="mb-12"
                 >
-                    {/* 背景装饰 */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.15)_0%,_transparent_50%)]" />
-                    <div className="absolute right-0 top-0 h-full w-1/2 opacity-10">
-                        <div className="absolute inset-0" style={{
-                            backgroundImage: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.4"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-                        }} />
-                    </div>
-
-                    {/* 内容 */}
-                    <div className="relative z-10 flex items-center justify-between">
-                        <div className="flex-1">
-                            <motion.h1 
-                                className="text-4xl font-bold mb-3"
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.2 }}
-                            >
-                                三维建模基础
-                            </motion.h1>
-                            <motion.p 
-                                className="text-orange-100 mb-2 text-lg"
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.3 }}
-                            >
-                                讲师：许葵
-                            </motion.p>
-                            <motion.p 
-                                className="text-sm text-orange-100 mb-8 flex items-center gap-2"
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.4 }}
-                            >
-                                <span className="w-2 h-2 bg-white/50 rounded-full animate-pulse" />
-                                上次学习：待开始学习
-                            </motion.p>
-                            
-                            <motion.div 
-                                className="flex gap-4"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5 }}
-                            >
-                                <GradientButton
-                                    onClick={() => navigate('/goal-setting')}
-                                    variant="secondary"
-                                    size="large"
-                                    className="bg-white/90 backdrop-blur-md text-orange-600 hover:bg-white border-0"
-                                >
-                                    继续学习
-                                </GradientButton>
-                                <GradientButton
-                                    variant="text"
-                                    size="large"
-                                    className="border border-white/40 text-white hover:bg-white/10"
-                                >
-                                    课程详情
-                                </GradientButton>
-                            </motion.div>
-                        </div>
-
-                        {/* 右侧悬浮卡片 */}
-                        <motion.div
-                            className="hidden lg:block"
-                            initial={{ opacity: 0, scale: 0.8, rotateY: -15 }}
-                            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                            transition={{ delay: 0.6, duration: 0.8 }}
-                        >
-                            <div className="relative">
-                                <div className="w-64 h-40 bg-white/10 backdrop-blur-md rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500">
-                                    <img 
-                                        src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop" 
-                                        alt="Course" 
-                                        className="w-full h-full object-cover" 
-                                    />
-                                </div>
-                                {/* 光晕效果 */}
-                                <div className="absolute -inset-2 bg-gradient-to-r from-orange-400/20 to-yellow-400/20 rounded-3xl blur-xl -z-10" />
-                            </div>
-                        </motion.div>
-                    </div>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                        你好, 张同学 <span className="text-2xl">👋</span>
+                    </h1>
+                    <p className="text-gray-500 text-lg">今天也是充满可能的一天，准备好开始学习了吗？</p>
                 </motion.div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left Column: Course List */}
-                    <div className="lg:col-span-2 space-y-8">
-                        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-800">我的课程</h2>
-                                <div className="flex bg-gray-100 rounded-lg p-1">
-                                    {['全部', '进行中', '已完成', '未开始'].map((tab, idx) => (
-                                        <button key={idx} className={`px-4 py-1 text-sm rounded-md ${idx === 0 ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500 hover:text-gray-700'}`}>
-                                            {tab} {idx === 0 && <span className="ml-1 text-xs bg-orange-100 text-orange-600 px-1.5 rounded-full">5</span>}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="space-y-6">
-                                {courses.map(course => (
-                                    <div
-                                        key={course.id}
-                                        onClick={() => handleCourseClick(course)}
-                                        className="group cursor-pointer block"
-                                    >
-                                        <div className="relative h-48 rounded-xl overflow-hidden mb-4">
-                                            <img src={course.image} alt={course.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
-                                            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-gray-600">
-                                                {course.status === 'pending' ? '未开始' : '进行中'}
-                                            </div>
-                                            {/* Overlay Gradient */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                                                <span className="text-white font-medium flex items-center">
-                                                    进入课程 <RightOutlined className="ml-2" />
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{course.title}</h3>
-                                                <span className="text-sm text-gray-500">{course.progress}%</span>
-                                            </div>
-                                            <p className="text-gray-500 text-sm mb-3">{course.instructor}</p>
-                                            <Progress percent={course.progress} size="small" strokeColor={course.progress === 0 ? '#e5e7eb' : '#2563eb'} trailColor="#f3f4f6" showInfo={false} />
-                                            <p className="text-xs text-gray-400 mt-2">
-                                                {course.status === 'pending' ? '待开始学习' : '上次学习：昨天'}
-                                            </p>
+                {/* 课程网格 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {courses.map((course, index) => (
+                        <motion.div
+                            key={course.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            onClick={() => handleCourseClick(course)}
+                            className="group cursor-pointer"
+                        >
+                            <GlassCard
+                                variant="hover"
+                                className="h-full overflow-hidden relative"
+                            >
+                                {/* 课程封面 */}
+                                <div className="h-48 overflow-hidden relative">
+                                    <div className={`absolute inset-0 bg-gradient-to-br ${course.color} opacity-20 group-hover:opacity-30 transition-opacity z-10`} />
+                                    <img
+                                        src={course.image}
+                                        alt={course.title}
+                                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                                    />
+                                    {/* 状态标签 */}
+                                    <div className="absolute top-4 right-4 z-20">
+                                        <div className="bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-gray-800 shadow-sm">
+                                            {course.status === 'pending' ? '未开始' : '进行中'}
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
+                                </div>
 
-                        {/* Another Course Card Style (List View) */}
-                        <div className="bg-white rounded-xl p-0 shadow-sm border border-gray-100 overflow-hidden">
-                            <div className="relative h-32 bg-gradient-to-r from-green-50 to-green-100 p-6 flex items-center justify-between">
-                                <div>
-                                    <h3 className="text-lg font-bold text-gray-800">高等数学（上）</h3>
-                                    <p className="text-gray-500 text-sm">雷田礼</p>
-                                </div>
-                                <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1000&auto=format&fit=crop" className="w-24 h-16 object-cover rounded-lg shadow-md" />
-                            </div>
-                            <div className="p-4">
-                                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                                    <span>学习进度</span>
-                                    <span>0%</span>
-                                </div>
-                                <Progress percent={0} size="small" showInfo={false} />
-                                <p className="text-xs text-gray-400 mt-2">待开始学习</p>
-                            </div>
-                        </div>
+                                {/* 课程信息 */}
+                                <div className="p-6">
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                                        {course.title}
+                                    </h3>
+                                    <div className="flex items-center justify-between mb-6">
+                                        <span className="text-sm text-gray-500">讲师：{course.instructor}</span>
+                                        <span className="text-sm font-bold text-gray-900">{course.progress}%</span>
+                                    </div>
 
-                    </div>
+                                    {/* 进度条 */}
+                                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-4">
+                                        <motion.div
+                                            className={`h-full bg-gradient-to-r ${course.color}`}
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${course.progress}%` }}
+                                            transition={{ duration: 1, delay: 0.5 }}
+                                        />
+                                    </div>
 
-                    {/* Right Column: Profile & Stats */}
-                    <div className="space-y-6">
-                        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                            <div className="flex items-center gap-4 mb-6">
-                                <Avatar size={64} icon={<UserOutlined />} className="bg-gray-100 text-gray-400" />
-                                <div>
-                                    <h3 className="text-lg font-bold text-gray-900">测试学生</h3>
-                                    <p className="text-gray-500 text-sm">班级：2023级计算机科学与技术1班</p>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4 mb-6">
-                                <div className="bg-blue-50 p-4 rounded-xl text-center">
-                                    <div className="text-2xl font-bold text-blue-600">0</div>
-                                    <div className="text-xs text-gray-500 mt-1">累计学时</div>
-                                </div>
-                                <div className="bg-green-50 p-4 rounded-xl text-center">
-                                    <div className="text-2xl font-bold text-green-600">0</div>
-                                    <div className="text-xs text-gray-500 mt-1">已修学分</div>
-                                </div>
-                                <div className="bg-orange-50 p-4 rounded-xl text-center">
-                                    <div className="text-2xl font-bold text-orange-600">0%</div>
-                                    <div className="text-xs text-gray-500 mt-1">签到率</div>
-                                </div>
-                                <div className="bg-purple-50 p-4 rounded-xl text-center">
-                                    <div className="text-2xl font-bold text-purple-600">0</div>
-                                    <div className="text-xs text-gray-500 mt-1">连续学习</div>
-                                </div>
-                            </div>
-
-                            <div className="flex justify-center mb-4">
-                                <div className="relative w-32 h-32 flex items-center justify-center">
-                                    <Progress type="circle" percent={0} width={120} strokeColor="#d1d5db" />
-                                    <div className="absolute text-center">
-                                        <div className="text-xl font-bold text-gray-700">0%</div>
-                                        <div className="text-xs text-gray-400">学期完成度</div>
+                                    <div className="flex items-center justify-between text-xs text-gray-400">
+                                        <span>上次学习：2天前</span>
+                                        <RightOutlined className="transform group-hover:translate-x-1 transition-transform" />
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            </GlassCard>
+                        </motion.div>
+                    ))}
 
-                        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-500">
-                                    <BellOutlined />
-                                </div>
-                                <h3 className="font-bold text-gray-800">深圳职业技术大学</h3>
+                    {/* AI 助教卡片 */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        onClick={() => navigate('/student/agents')}
+                        className="group cursor-pointer"
+                    >
+                        <GlassCard
+                            variant="hover"
+                            className="h-full flex flex-col justify-center items-center text-center p-8 border-2 border-dashed border-gray-200 hover:border-blue-300 bg-gray-50/50"
+                        >
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-6 shadow-glow-purple group-hover:scale-110 transition-transform">
+                                <Bot className="text-white w-8 h-8" />
                             </div>
-                            <div className="space-y-4">
-                                <div>
-                                    <p className="text-sm font-medium text-gray-600 mb-1">学校公告</p>
-                                    <a href="#" className="text-xs text-orange-500 hover:underline">查看更多 →</a>
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-gray-600 mb-1">今日课表</p>
-                                    <p className="text-xs text-gray-400">暂无课程安排</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                            <h3 className="font-bold text-gray-800 mb-4">今日待办</h3>
-                            <div className="text-center py-8 text-gray-400 text-sm">
-                                暂无待办事项
-                            </div>
-                        </div>
-
-                    </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">AI 学习助手</h3>
+                            <p className="text-gray-500 text-sm mb-6">
+                                遇到难题？随时呼叫你的专属 AI 助教，获取即时解答和个性化指导。
+                            </p>
+                            <span className="text-indigo-600 font-bold text-sm group-hover:underline">
+                                浏览助教列表 &rarr;
+                            </span>
+                        </GlassCard>
+                    </motion.div>
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 
