@@ -18,6 +18,8 @@ import {
 import teacherAgentsData from '../data/teacher_agents_data';
 import agentStatisticsData from '../data/agent_statistics_data';
 import agentCommentsData from '../data/agent_comments_data';
+import teacherAgentDetailPageData from '../data/TeacherAgentDetailPageData';
+import teacherAgentCommentsPageData from '../data/TeacherAgentCommentsPageData';
 
 const TeacherAgentManager = () => {
     const navigate = useNavigate();
@@ -33,7 +35,13 @@ const TeacherAgentManager = () => {
         // 如果localStorage中没有数据，从初始数据初始化
         const storedAgents = getAllAgents();
         if (storedAgents.length === 0) {
-            initializeFromData(teacherAgentsData, agentStatisticsData, agentCommentsData);
+            initializeFromData(
+                teacherAgentsData,
+                agentStatisticsData,
+                agentCommentsData,
+                teacherAgentDetailPageData.usageRecords,
+                teacherAgentCommentsPageData.auditStatusMap
+            );
         }
         loadData();
     }, []);

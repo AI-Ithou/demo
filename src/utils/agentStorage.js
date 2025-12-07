@@ -249,6 +249,93 @@ export const updateAgentRating = (agentId, rating) => {
     }
 };
 
+// ==================== 学生使用记录 ====================
+
+/**
+ * 获取所有学生使用记录
+ */
+export const getAllUsageRecords = () => {
+    try {
+        const data = localStorage.getItem(STORAGE_KEYS.USAGE_RECORDS);
+        return data ? JSON.parse(data) : {};
+    } catch (error) {
+        console.error('获取学生使用记录失败:', error);
+        return {};
+    }
+};
+
+/**
+ * 保存所有学生使用记录
+ */
+export const saveUsageRecords = (usageRecords) => {
+    try {
+        localStorage.setItem(STORAGE_KEYS.USAGE_RECORDS, JSON.stringify(usageRecords));
+        return true;
+    } catch (error) {
+        console.error('保存学生使用记录失败:', error);
+        return false;
+    }
+};
+
+/**
+ * 获取单个智能体的学生使用记录
+ */
+export const getAgentUsageRecords = (agentId) => {
+    const usageRecords = getAllUsageRecords();
+    return usageRecords[agentId] || [];
+};
+
+/**
+ * 更新单个智能体的学生使用记录
+ */
+export const upsertAgentUsageRecords = (agentId, records) => {
+    const usageRecords = getAllUsageRecords();
+    usageRecords[agentId] = records;
+    saveUsageRecords(usageRecords);
+    return usageRecords[agentId];
+};
+
+/**
+ * 合并导入的学生使用记录（按 studentId 覆盖合并）
+ */
+export const mergeUsageRecords = (agentId, importedRecords = []) => {
+    const usageRecords = getAllUsageRecords();
+    const current = usageRecords[agentId] || [];
+    const mergedMap = new Map();
+
+    current.forEach(record => {
+        if (record.studentId) {
+            mergedMap.set(record.studentId, record);
+        }
+    });
+
+    importedRecords.forEach(record => {
+        if (record.studentId) {
+            const existing = mergedMap.get(record.studentId) || {};
+            mergedMap.set(record.studentId, { ...existing, ...record });
+        }
+    });
+
+    usageRecords[agentId] = Array.from(mergedMap.values());
+    saveUsageRecords(usageRecords);
+    return usageRecords[agentId];
+};
+
+/**
+ * 初始化学生使用记录
+ */
+export const initializeUsageRecords = (usageRecords = {}) => {
+    try {
+        if (!localStorage.getItem(STORAGE_KEYS.USAGE_RECORDS)) {
+            saveUsageRecords(usageRecords);
+        }
+        return true;
+    } catch (error) {
+        console.error('初始化学生使用记录失败:', error);
+        return false;
+    }
+};
+
 // ==================== 留言评论管理 ====================
 
 /**
@@ -297,7 +384,11 @@ export const addComment = (commentData) => {
             createdAt: Date.now(),
             likes: 0,
             likedBy: [],
-            replies: []
+            replies: [],
+            auditStatus: commentData.auditStatus || 'pending',
+            auditRemark: commentData.auditRemark || '',
+            auditedBy: commentData.auditedBy || null,
+            auditedAt: commentData.auditedAt || null
         };
         comments.push(newComment);
         saveComments(comments);
@@ -423,6 +514,38 @@ export const likeComment = (commentId, userId) => {
     }
 };
 
+/**
+ * 批量更新留言审核状态
+ */
+export const updateCommentsAuditStatus = (commentIds = [], status, remark = '', auditor = 'teacher-001') => {
+    if (!status || commentIds.length === 0) {
+        return [];
+    }
+
+    try {
+        const comments = getAllComments();
+        const now = Date.now();
+        const updatedComments = comments.map(comment => {
+            if (commentIds.includes(comment.id)) {
+                return {
+                    ...comment,
+                    auditStatus: status,
+                    auditRemark: remark || comment.auditRemark || '',
+                    auditedBy: auditor,
+                    auditedAt: now
+                };
+            }
+            return comment;
+        });
+
+        saveComments(updatedComments);
+        return updatedComments.filter(comment => commentIds.includes(comment.id));
+    } catch (error) {
+        console.error('更新审核状态失败:', error);
+        return [];
+    }
+};
+
 // ==================== 用户评分记录 ====================
 
 /**
@@ -474,7 +597,7 @@ export const getUserAgentRating = (userId, agentId) => {
 /**
  * 从初始数据初始化 localStorage
  */
-export const initializeFromData = (agents, statistics, comments) => {
+export const initializeFromData = (agents, statistics, comments, usageRecords = {}, commentAuditMap = {}) => {
     try {
         if (!localStorage.getItem(STORAGE_KEYS.AGENTS)) {
             saveAgents(agents);
@@ -483,7 +606,20 @@ export const initializeFromData = (agents, statistics, comments) => {
             saveStatistics(statistics);
         }
         if (!localStorage.getItem(STORAGE_KEYS.COMMENTS)) {
-            saveComments(comments);
+            const mergedComments = comments.map(comment => {
+                const auditInfo = commentAuditMap[comment.id] || {};
+                return {
+                    ...comment,
+                    auditStatus: comment.auditStatus || auditInfo.status || 'pending',
+                    auditRemark: comment.auditRemark || auditInfo.remark || '',
+                    auditedBy: comment.auditedBy || auditInfo.auditedBy || null,
+                    auditedAt: comment.auditedAt || auditInfo.auditedAt || null
+                };
+            });
+            saveComments(mergedComments);
+        }
+        if (!localStorage.getItem(STORAGE_KEYS.USAGE_RECORDS)) {
+            saveUsageRecords(usageRecords);
         }
         return true;
     } catch (error) {

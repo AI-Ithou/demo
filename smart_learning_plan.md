@@ -29,7 +29,7 @@
 | 学习路径管理 | “学习路径管理” | **新增**：创建路径；**修改**：改描述、复制；**删除**：逻辑删除路径；**查询**：分页+筛选 | 表 `learning_paths`。 |
 | 学习路径编辑 | “学习路径管理 → 编辑” | **新增**：勾选知识点加入路径、添加资源；**修改**：拖拽顺序、录入描述、接受/拒绝 AI 建议；**删除**：移除知识点或资源；**查询**：树状搜索知识点 | 需要 `path_nodes`、`path_ai_suggestions` 两张表。 |
 | ~~AI 分组推荐（搁置）~~ | “AI 智能学习小组” | **暂缓**：生成/调整/保存分组方案暂停交付，恢复后沿用原分组策略与数据结构 | 表 `group_plans`，字段含策略、成员、老师备注。 |
-| 智能体运营中心 | “AI 智能体” (`/teacher/agents`, `/teacher/agents/manage`, `/teacher/agent/:id`) | **新增**：创建/复制智能体；**修改**：编辑画像/能力、上下架；**删除**：逻辑删除智能体；**查询/监控**：使用/评分/评论趋势；**运营**：评论批量审核/置顶推荐；**导出/导入**：大盘导出 Excel，单个智能体支持学生使用明细导入 Excel | 表 `agent_profiles`, `agent_statistics`, `agent_comments`, `agent_usage_records`, `agent_templates`, `agent_usage_import_jobs`。 |
+| 智能体运营中心 | “AI 智能体” (`/teacher/agents`, `/teacher/agents/manage`, `/teacher/agent/:id`) | **新增**：创建/复制智能体；**修改**：编辑画像/能力、上下架；**删除**：逻辑删除智能体；**查询/监控**：大盘使用/评分/评论趋势、学段覆盖度；**运营**：评论批量审核（多选、话术模板、备注）、置顶推荐；**导出/导入**：大盘多 Sheet Excel 导出，单个智能体支持学生使用明细 Excel 导入/导出（含模板下载） | 表 `agent_profiles`, `agent_statistics`, `agent_comments`, `agent_usage_records`, `agent_templates`, `agent_usage_import_jobs`, `agent_comment_audit_logs`。 |
 | 班级路径概览/学生详情 | “班级路径”“学生路径详情” | **查询**：按班级/学生查看路径进度和日志；**修改**：老师可调整里程碑、添加备注；**删除**：仅能删除备注；**新增**：新建提醒或任务 | 表 `class_progress`, `teacher_notes`。 |
 | 知识点评测配置 | “知识点评测配置” | **新增**：创建不同难度试卷、关联资料、AI 出题；**修改**：编辑题目、调整时间；**删除**：移除题目或整套配置；**查询**：按知识点/难度筛选 | 表 `assessment_configs`, `assessment_questions`。 |
 | ~~教案管理中心（搁置）~~ | “AI教案 → 教案列表” (`/teacher/lesson-plans`) | **暂缓**：列表筛选/创建/修改/删除暂停交付，方案保留 | 表 `lesson_plan_storage`（LocalStorage/云端），`lessonPlanMetadata` |
@@ -63,6 +63,7 @@
 - **修改类接口**：`PUT /goals/{id}`, `PATCH /paths/{id}`, `PATCH /path-nodes/{id}`, `PATCH /assessment-question/{id}`。  
 - **删除类接口**：`DELETE /path-nodes/{id}`, `DELETE /group-plan/{id}`, `DELETE /assessment-question/{id}`（均为逻辑删除）。  
 - **查询类接口**：`GET /students/{id}/profile`, `GET /paths`, `GET /knowledge-tree`, `GET /reports`, `GET /ai-suggestions`.  
+- **智能体运营接口**：`POST /agents`, `PUT /agents/{id}`, `GET /agents/statistics`, `POST /agent-usage/import`（Excel 上传作业）、`GET /agent-usage/export`、`POST /agent-comments/audit`（批量审核，含备注）。  
 
 ## 5. 页面跳转关系（基于 Demo URL）
 1. 进入 Demo：`https://oss-sz.suiguangming.com/ziliao/demo/index.html`。  
@@ -145,6 +146,9 @@
   - 知识点评测配置 `#/teacher/assessment`  
     - 操作：创建配置、AI 出题、编辑题干与答案、删除题目或整套配置、按知识点/难度查询  
     - 结果：`assessment_configs`, `assessment_questions` 完整可用
+  - 智能体运营中心 `#/teacher/agents`、`#/teacher/agent/:id`、`#/teacher/agent/:id/comments`  
+    - 操作：创建/复制/上下架智能体；查看大盘使用/评分/评论与学段覆盖度；评论多选批量审核（话术模板+备注）；学生使用明细 Excel 导入/导出、模板下载；大盘多 Sheet Excel 导出  
+    - 结果：`agent_profiles`, `agent_statistics`, `agent_comments`, `agent_usage_records`, `agent_usage_import_jobs`, `agent_comment_audit_logs` 持续更新，学生端广场/对话同步展示
 
 - **知识与 AI**（Demo 左侧“知识与AI”）  
   - 知识树 `#/knowledge/tree`  
@@ -193,7 +197,7 @@
 4. **风险控制**：AI 输出经过敏感词过滤、提示词注入测试、质量抽检，避免出现不当内容。
 5. **知识库 AutoIndex**：监控源目录/对象存储，自动切片 + 去重 + 向量化；支持增量回写、手动重跑、失败重试、版本冻结，便于 Tony 运维与追踪。
 6. **记忆与上下文工程**：对话+掌握度+练习/评测结果形成“学生状态快照”，支持跨设备恢复、上下文裁剪与回放，并在召回资源/题目/路径时联动向量检索。
-7. **智能体运营闭环**：教师端可创建/上下架智能体、查看使用/评分/评论趋势、批量审核评论、导出大盘 Excel、导入单体学生使用明细，学生端可搜索/对话/评分，数据沉淀在 `agent_profiles` + `agent_statistics` + `agent_comments` + `agent_usage_import_jobs` 形成可运营的数字老师生态。
+7. **智能体运营闭环**：教师端可创建/上下架智能体、查看使用/评分/评论/学段覆盖趋势、批量审核评论（多选+话术模板+备注）、导出大盘多 Sheet Excel、导入/导出单体学生使用明细，学生端可搜索/对话/评分，数据沉淀在 `agent_profiles` + `agent_statistics` + `agent_comments` + `agent_usage_import_jobs` 形成可运营的数字老师生态。
 
 ### 8.4 落地方式
 1. **共创样板**：先和甲方挑一个班（或年级）做样板，确认学习路径和报告模板。  

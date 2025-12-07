@@ -1,24 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     ArrowLeft, Settings, BarChart3, MessageSquare, Star,
-    TrendingUp, Users, Award, Calendar, Clock, MessageCircle
+    TrendingUp, Users, Award, Calendar, Clock, MessageCircle, UploadCloud, DownloadCloud, Filter
 } from 'lucide-react';
 import {
     LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
     XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { GlassCard } from '../components/uiverse';
 import CommentCard from '../components/CommentCard';
 import {
     getAgentById,
     getAgentStatistics,
     getAgentComments,
+    getAgentUsageRecords,
+    mergeUsageRecords,
     addReply,
     likeComment,
-    deleteComment
+    deleteComment,
+    initializeFromData
 } from '../utils/agentStorage';
+import teacherAgentsData from '../data/teacher_agents_data';
+import agentStatisticsData from '../data/agent_statistics_data';
+import agentCommentsData from '../data/agent_comments_data';
+import teacherAgentDetailPageData from '../data/TeacherAgentDetailPageData';
+import teacherAgentCommentsPageData from '../data/TeacherAgentCommentsPageData';
+import { readExcelFile, exportExcelFile, buildExcelFileName, buildTemplateRow } from '../utils/excelUtils';
 
 const TeacherAgentDetailPage = () => {
     const navigate = useNavigate();
@@ -27,8 +35,24 @@ const TeacherAgentDetailPage = () => {
     const [agent, setAgent] = useState(null);
     const [statistics, setStatistics] = useState(null);
     const [comments, setComments] = useState([]);
+    const [studentUsage, setStudentUsage] = useState([]);
+    const [usageSearch, setUsageSearch] = useState('');
+    const [usageRiskFilter, setUsageRiskFilter] = useState('all');
+    const [usageSort, setUsageSort] = useState('usage');
+    const [importing, setImporting] = useState(false);
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
+        const exists = getAgentById(agentId);
+        if (!exists) {
+            initializeFromData(
+                teacherAgentsData,
+                agentStatisticsData,
+                agentCommentsData,
+                teacherAgentDetailPageData.usageRecords,
+                teacherAgentCommentsPageData.auditStatusMap
+            );
+        }
         loadData();
     }, [agentId]);
 
@@ -36,10 +60,16 @@ const TeacherAgentDetailPage = () => {
         const agentData = getAgentById(agentId);
         const statsData = getAgentStatistics(agentId);
         const commentsData = getAgentComments(agentId);
+        let usageData = getAgentUsageRecords(agentId) || [];
+
+        if ((!usageData || usageData.length === 0) && teacherAgentDetailPageData.usageRecords[agentId]) {
+            usageData = mergeUsageRecords(agentId, teacherAgentDetailPageData.usageRecords[agentId]);
+        }
 
         setAgent(agentData);
         setStatistics(statsData);
         setComments(commentsData);
+        setStudentUsage(usageData || []);
     };
 
     const handleReply = (commentId, replyText) => {
@@ -60,6 +90,79 @@ const TeacherAgentDetailPage = () => {
         if (window.confirm('确定要删除这条留言吗？')) {
             deleteComment(commentId);
             loadData();
+        }
+    };
+
+    const normalizeUsageRow = (row) => ({
+        studentId: row.studentId || row['studentId'] || row['学生编号'] || '',
+        studentName: row.studentName || row['studentName'] || row['学生姓名'] || '未命名学生',
+        className: row.className || row['className'] || row['班级'] || '',
+        usageCount: Number(row.usageCount || row['usageCount'] || 0),
+        avgDuration: Number(row.avgDuration || row['avgDuration'] || 0),
+        activeDays: Number(row.activeDays || row['activeDays'] || 0),
+        lastActive: row.lastActive || row['lastActive'] || row['最近活跃'] || '',
+        rating: Number(row.rating || row['rating'] || row['评分'] || 0),
+        completionRate: Number(row.completionRate || row['completionRate'] || row['完成度'] || 0),
+        lastTopic: row.lastTopic || row['lastTopic'] || row['知识点'] || '',
+        device: row.device || row['device'] || row['设备'] || '',
+        channel: row.channel || row['channel'] || row['渠道'] || '',
+        tags: Array.isArray(row.tags)
+            ? row.tags
+            : (row.tags || row['tags'] || '').toString().split(/[，,、]/).filter(Boolean),
+        risk: row.risk === true || row.risk === 'true' || row.risk === '是' || row.risk === '1'
+    });
+
+    const handleImportUsage = async (file) => {
+        if (!file) return;
+        setImporting(true);
+        try {
+            const rows = await readExcelFile(file);
+            const normalized = rows.map(normalizeUsageRow).filter((row) => row.studentId);
+            const merged = mergeUsageRecords(agentId, normalized);
+            setStudentUsage(merged);
+        } catch (error) {
+            console.error('导入学生使用数据失败:', error);
+        } finally {
+            setImporting(false);
+        }
+    };
+
+    const handleExportUsage = () => {
+        const exportRows = studentUsage.map((record) => ({
+            学生学号: record.studentId,
+            学生姓名: record.studentName,
+            班级: record.className,
+            使用次数: record.usageCount,
+            平均时长分钟: record.avgDuration,
+            活跃天数: record.activeDays,
+            最近活跃: record.lastActive,
+            完成度: record.completionRate,
+            评分: record.rating,
+            设备: record.device,
+            渠道: record.channel,
+            关键词标签: (record.tags || []).join(' / '),
+            风险关注: record.risk ? '是' : '否'
+        }));
+
+        exportExcelFile(
+            [{ name: `${agent.name}-学生使用`, data: exportRows }],
+            buildExcelFileName(`${agent.name}-学生使用导出`)
+        );
+    };
+
+    const handleDownloadTemplate = () => {
+        const row = buildTemplateRow(teacherAgentDetailPageData.importTemplateHeaders);
+        exportExcelFile(
+            [{ name: '导入模板', data: [row] }],
+            buildExcelFileName(`${agent.name}-学生使用导入模板`)
+        );
+    };
+
+    const handleFileInputChange = async (event) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            await handleImportUsage(file);
+            event.target.value = '';
         }
     };
 
@@ -103,6 +206,42 @@ const TeacherAgentDetailPage = () => {
         }));
 
     const COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6'];
+    const usageSummary = {
+        activeStudents: studentUsage.length,
+        riskyStudents: studentUsage.filter((record) => record.risk).length,
+        avgCompletion: studentUsage.length
+            ? Math.round(studentUsage.reduce((sum, record) => sum + (record.completionRate || 0), 0) / studentUsage.length)
+            : 0,
+        avgDuration: studentUsage.length
+            ? (studentUsage.reduce((sum, record) => sum + (record.avgDuration || 0), 0) / studentUsage.length).toFixed(1)
+            : 0
+    };
+
+    const filteredUsage = studentUsage
+        .filter((record) => {
+            if (!usageSearch) return true;
+            const keyword = usageSearch.toLowerCase();
+            return (
+                record.studentName?.toLowerCase().includes(keyword) ||
+                record.className?.toLowerCase().includes(keyword) ||
+                record.lastTopic?.toLowerCase().includes(keyword)
+            );
+        })
+        .filter((record) => {
+            if (usageRiskFilter === 'risk') return record.risk;
+            if (usageRiskFilter === 'healthy') return !record.risk;
+            return true;
+        })
+        .sort((a, b) => {
+            switch (usageSort) {
+                case 'completion':
+                    return (b.completionRate || 0) - (a.completionRate || 0);
+                case 'active':
+                    return (b.activeDays || 0) - (a.activeDays || 0);
+                default:
+                    return (b.usageCount || 0) - (a.usageCount || 0);
+            }
+        });
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -296,9 +435,166 @@ const TeacherAgentDetailPage = () => {
                                                 <XAxis dataKey="hourLabel" stroke="#6b7280" tick={{ fontSize: 12 }} />
                                                 <YAxis stroke="#6b7280" tick={{ fontSize: 12 }} />
                                                 <Tooltip />
-                                                <Bar dataKey="count" name="使用次数" fill="#f97316" radius={[8, 8, 0, 0]} />
-                                            </BarChart>
-                                        </ResponsiveContainer>
+                                            <Bar dataKey="count" name="使用次数" fill="#f97316" radius={[8, 8, 0, 0]} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                    </div>
+                                </div>
+
+                                {/* 学生使用概览 */}
+                                <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+                                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                                        <div>
+                                            <h3 className="text-lg font-bold text-slate-800">学生使用全景</h3>
+                                            <p className="text-sm text-slate-500">所有数据仅存于浏览器缓存，可随时导入导出 Excel</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                ref={fileInputRef}
+                                                type="file"
+                                                accept=".xlsx,.xls"
+                                                className="hidden"
+                                                onChange={handleFileInputChange}
+                                            />
+                                            <button
+                                                onClick={handleDownloadTemplate}
+                                                className="px-4 py-2 text-sm bg-slate-50 text-slate-700 rounded-xl border border-slate-200 hover:bg-slate-100 transition-all flex items-center gap-1.5"
+                                            >
+                                                <DownloadCloud size={16} />
+                                                下载模板
+                                            </button>
+                                            <button
+                                                onClick={() => fileInputRef.current?.click()}
+                                                disabled={importing}
+                                                className="px-4 py-2 text-sm bg-blue-50 text-blue-700 rounded-xl border border-blue-200 hover:bg-blue-100 transition-all flex items-center gap-1.5 disabled:opacity-60"
+                                            >
+                                                <UploadCloud size={16} />
+                                                {importing ? '导入中...' : '导入 Excel'}
+                                            </button>
+                                            <button
+                                                onClick={handleExportUsage}
+                                                className="px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-1.5"
+                                            >
+                                                <DownloadCloud size={16} />
+                                                导出学生使用
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                        <UsageStat label="活跃学生" value={usageSummary.activeStudents} color="from-blue-500 to-cyan-500" />
+                                        <UsageStat label="风险关注" value={usageSummary.riskyStudents} color="from-amber-500 to-orange-500" />
+                                        <UsageStat label="平均完成度" value={`${usageSummary.avgCompletion}%`} color="from-emerald-500 to-green-500" />
+                                        <UsageStat label="平均时长(分钟)" value={usageSummary.avgDuration} color="from-purple-500 to-pink-500" />
+                                    </div>
+
+                                    <div className="flex flex-col md:flex-row md:items-center gap-3">
+                                        <div className="flex-1 relative">
+                                            <Filter size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input
+                                                value={usageSearch}
+                                                onChange={(e) => setUsageSearch(e.target.value)}
+                                                placeholder="搜索学生姓名、班级或知识点..."
+                                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                                            />
+                                        </div>
+                                        <select
+                                            value={usageRiskFilter}
+                                            onChange={(e) => setUsageRiskFilter(e.target.value)}
+                                            className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                                        >
+                                            <option value="all">全部学生</option>
+                                            <option value="risk">仅关注人群</option>
+                                            <option value="healthy">表现稳定</option>
+                                        </select>
+                                        <select
+                                            value={usageSort}
+                                            onChange={(e) => setUsageSort(e.target.value)}
+                                            className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                                        >
+                                            <option value="usage">按使用次数</option>
+                                            <option value="completion">按完成度</option>
+                                            <option value="active">按活跃天数</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full">
+                                            <thead>
+                                                <tr className="border-b border-slate-200">
+                                                    <th className="text-left py-3 px-4 text-slate-600 font-semibold">学生</th>
+                                                    <th className="text-left py-3 px-4 text-slate-600 font-semibold">班级 / 标签</th>
+                                                    <th className="text-center py-3 px-4 text-slate-600 font-semibold">使用次数</th>
+                                                    <th className="text-center py-3 px-4 text-slate-600 font-semibold">活跃天数</th>
+                                                    <th className="text-center py-3 px-4 text-slate-600 font-semibold">完成度</th>
+                                                    <th className="text-center py-3 px-4 text-slate-600 font-semibold">平均时长</th>
+                                                    <th className="text-center py-3 px-4 text-slate-600 font-semibold">最近活跃</th>
+                                                    <th className="text-center py-3 px-4 text-slate-600 font-semibold">设备 / 渠道</th>
+                                                    <th className="text-center py-3 px-4 text-slate-600 font-semibold">风险</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {filteredUsage.map((record) => (
+                                                    <tr key={record.studentId} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                                        <td className="py-3 px-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-white flex items-center justify-center font-bold">
+                                                                    {record.studentName?.[0] || '学'}
+                                                                </div>
+                                                                <div>
+                                                                    <div className="font-semibold text-slate-800">{record.studentName}</div>
+                                                                    <div className="text-xs text-slate-500">ID: {record.studentId}</div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-3 px-4">
+                                                            <div className="text-sm text-slate-700">{record.className}</div>
+                                                            <div className="flex flex-wrap gap-1 mt-1">
+                                                                {(record.tags || []).map((tag, idx) => (
+                                                                    <span key={idx} className="px-2 py-0.5 text-[11px] rounded-full bg-slate-100 text-slate-600">
+                                                                        {tag}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </td>
+                                                        <td className="text-center py-3 px-4 text-slate-800 font-semibold">{record.usageCount || 0}</td>
+                                                        <td className="text-center py-3 px-4 text-slate-800">{record.activeDays || 0}</td>
+                                                        <td className="text-center py-3 px-4">
+                                                            <div className="w-28 mx-auto">
+                                                                <div className="text-xs font-semibold text-slate-700 mb-1">{record.completionRate || 0}%</div>
+                                                                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                                                    <div
+                                                                        className="h-full bg-gradient-to-r from-emerald-400 to-green-500"
+                                                                        style={{ width: `${record.completionRate || 0}%` }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="text-center py-3 px-4 text-slate-800">{record.avgDuration || 0} 分钟</td>
+                                                        <td className="text-center py-3 px-4 text-slate-600">{record.lastActive || '—'}</td>
+                                                        <td className="text-center py-3 px-4 text-slate-600">
+                                                            <div>{record.device || '—'}</div>
+                                                            <div className="text-xs text-slate-500">{record.channel || ''}</div>
+                                                        </td>
+                                                        <td className="text-center py-3 px-4">
+                                                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${record.risk
+                                                                    ? 'bg-amber-50 text-amber-700 border border-amber-100'
+                                                                    : 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                                                                }`}>
+                                                                {record.risk ? '关注' : '稳定'}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                                {filteredUsage.length === 0 && (
+                                                    <tr>
+                                                        <td colSpan={9} className="py-10 text-center text-slate-400">
+                                                            暂无数据，可先导入 Excel
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -372,6 +668,15 @@ const TeacherAgentDetailPage = () => {
         </div>
     );
 };
+
+const UsageStat = ({ label, value, color }) => (
+    <div className="p-4 rounded-xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 shadow-sm">
+        <div className="text-xs text-slate-500 mb-1">{label}</div>
+        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold text-white bg-gradient-to-r ${color}`}>
+            {value}
+        </div>
+    </div>
+);
 
 // 指标卡片组件
 const MetricCard = ({ icon: Icon, label, value, color }) => {

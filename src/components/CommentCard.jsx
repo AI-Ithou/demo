@@ -12,6 +12,10 @@ import RatingComponent from './RatingComponent';
  * @param {Function} onDelete - 删除回调
  * @param {boolean} showActions - 是否显示操作按钮
  * @param {string} currentUserId - 当前用户ID
+ * @param {boolean} selectable - 是否展示选择框
+ * @param {boolean} selected - 是否被选中
+ * @param {Function} onSelectToggle - 选择切换回调
+ * @param {boolean} showAuditStatus - 是否展示审核状态
  */
 const CommentCard = ({
     comment,
@@ -19,7 +23,11 @@ const CommentCard = ({
     onReply,
     onDelete,
     showActions = true,
-    currentUserId
+    currentUserId,
+    selectable = false,
+    selected = false,
+    onSelectToggle,
+    showAuditStatus = false
 }) => {
     const [showReplyInput, setShowReplyInput] = React.useState(false);
     const [replyText, setReplyText] = React.useState('');
@@ -51,6 +59,12 @@ const CommentCard = ({
     };
 
     const isLiked = comment.likedBy?.includes(currentUserId);
+    const auditStatusMap = {
+        approved: { label: '已通过', color: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
+        rejected: { label: '已驳回', color: 'bg-red-50 text-red-600 border-red-100' },
+        pending: { label: '待审核', color: 'bg-amber-50 text-amber-600 border-amber-100' }
+    };
+    const auditInfo = auditStatusMap[comment.auditStatus] || auditStatusMap.pending;
 
     return (
         <motion.div
@@ -62,6 +76,16 @@ const CommentCard = ({
                 {/* 用户信息 */}
                 <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3 flex-1">
+                        {selectable && (
+                            <label className="pt-1">
+                                <input
+                                    type="checkbox"
+                                    checked={selected}
+                                    onChange={() => onSelectToggle?.(comment.id)}
+                                    className="w-4 h-4 accent-blue-600 cursor-pointer"
+                                />
+                            </label>
+                        )}
                         <img
                             src={comment.studentAvatar}
                             alt={comment.studentName}
@@ -85,6 +109,11 @@ const CommentCard = ({
                                 {formatTime(comment.createdAt)}
                             </span>
                         </div>
+                        {showAuditStatus && (
+                            <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${auditInfo.color}`}>
+                                {auditInfo.label}
+                            </span>
+                        )}
                     </div>
 
                     {/* 更多菜单 */}
@@ -117,6 +146,11 @@ const CommentCard = ({
                 <div className="text-gray-700 leading-relaxed pl-13">
                     {comment.content}
                 </div>
+                {showAuditStatus && comment.auditRemark && (
+                    <div className="pl-13 text-xs text-slate-500 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+                        审核备注：{comment.auditRemark}
+                    </div>
+                )}
 
                 {/* 操作按钮 */}
                 {showActions && (

@@ -3,26 +3,47 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     ArrowLeft, TrendingUp, Star, Users, MessageCircle,
-    Calendar, Award, BarChart3, Settings
+    Calendar, Award, BarChart3, Settings, DownloadCloud, Sparkles
 } from 'lucide-react';
 import {
     LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
     XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { GlassCard, GradientButton } from '../components/uiverse';
+import { GlassCard } from '../components/uiverse';
 import {
     getAllAgents,
     getAllStatistics,
-    getAllComments
+    getAllComments,
+    getAllUsageRecords,
+    initializeFromData
 } from '../utils/agentStorage';
+import { teacherAgentStatisticsOverviewData } from '../data/TeacherAgentStatisticsOverviewData';
+import { exportExcelFile, buildExcelFileName } from '../utils/excelUtils';
+import teacherAgentsData from '../data/teacher_agents_data';
+import agentStatisticsData from '../data/agent_statistics_data';
+import agentCommentsData from '../data/agent_comments_data';
+import teacherAgentDetailPageData from '../data/TeacherAgentDetailPageData';
+import teacherAgentCommentsPageData from '../data/TeacherAgentCommentsPageData';
 
 const TeacherAgentStatisticsOverview = () => {
     const navigate = useNavigate();
     const [agents, setAgents] = useState([]);
     const [statistics, setStatistics] = useState({});
     const [allComments, setAllComments] = useState([]);
+    const [usageRecords, setUsageRecords] = useState({});
+    const [exporting, setExporting] = useState(false);
 
     useEffect(() => {
+        const storedAgents = getAllAgents();
+        if (storedAgents.length === 0) {
+            initializeFromData(
+                teacherAgentsData,
+                agentStatisticsData,
+                agentCommentsData,
+                teacherAgentDetailPageData.usageRecords,
+                teacherAgentCommentsPageData.auditStatusMap
+            );
+        }
         loadData();
     }, []);
 
@@ -30,10 +51,12 @@ const TeacherAgentStatisticsOverview = () => {
         const agentsData = getAllAgents();
         const statsData = getAllStatistics();
         const commentsData = getAllComments();
+        const usageData = getAllUsageRecords();
 
         setAgents(agentsData);
         setStatistics(statsData);
         setAllComments(commentsData);
+        setUsageRecords(usageData);
     };
 
     // 计算总体统计
@@ -42,6 +65,7 @@ const TeacherAgentStatisticsOverview = () => {
         (Object.keys(statistics).length || 1)).toFixed(1);
     const totalRatings = Object.values(statistics).reduce((sum, s) => sum + (s.totalRatings || 0), 0);
     const totalComments = allComments.length;
+    const totalStudents = Object.values(usageRecords || {}).reduce((sum, list) => sum + (list?.length || 0), 0);
 
     // 准备智能体使用排行数据
     const agentUsageRanking = agents
@@ -83,7 +107,68 @@ const TeacherAgentStatisticsOverview = () => {
         .sort((a, b) => new Date(a.date) - new Date(b.date))
         .slice(-14);
 
+    const adoptionMatrix = teacherAgentStatisticsOverviewData.adoptionMatrix || [];
     const COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6'];
+
+    const handleExportExcel = () => {
+        try {
+            setExporting(true);
+            const overviewSheet = agents.map((agent) => {
+                const stats = statistics[agent.id] || {};
+                const peakHour = (stats.popularTimes || []).slice().sort((a, b) => (b?.count || 0) - (a?.count || 0))[0];
+                const fiveStarRatio = stats.totalRatings
+                    ? (((stats.ratingDistribution?.[5] || 0) / stats.totalRatings) * 100).toFixed(1)
+                    : '0.0';
+
+                return {
+                    智能体: agent.name,
+                    总使用次数: stats.totalUsage || 0,
+                    平均评分: stats.averageRating || 0,
+                    评价人数: stats.totalRatings || 0,
+                    留言数: stats.totalComments || 0,
+                    学生覆盖人数: (usageRecords[agent.id] || []).length,
+                    '五星占比(%)': fiveStarRatio,
+                    高频时段: peakHour ? `${peakHour.hour}:00` : '—'
+                };
+            });
+
+            const ratingSheet = agents.flatMap((agent) => {
+                const stats = statistics[agent.id] || {};
+                return Object.entries(stats.ratingDistribution || {}).map(([rating, count]) => ({
+                    智能体: agent.name,
+                    评分: `${rating}星`,
+                    次数: count,
+                    占比: stats.totalRatings ? `${((count / stats.totalRatings) * 100).toFixed(1)}%` : '0%'
+                }));
+            });
+
+            const rankingSheet = agentUsageRanking.map((item, index) => ({
+                排名: index + 1,
+                智能体: item.name,
+                使用次数: item.usage,
+                平均评分: item.rating
+            }));
+
+            const trendSheet = trendData.map((item) => ({
+                日期: item.date,
+                使用次数: item.count
+            }));
+
+            exportExcelFile(
+                [
+                    { name: '智能体概览', data: overviewSheet },
+                    { name: '评分分布', data: ratingSheet },
+                    { name: '使用排行', data: rankingSheet },
+                    { name: '整体趋势', data: trendSheet }
+                ],
+                buildExcelFileName('智能体大盘导出')
+            );
+        } catch (error) {
+            console.error('导出失败:', error);
+        } finally {
+            setExporting(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
@@ -105,22 +190,34 @@ const TeacherAgentStatisticsOverview = () => {
                                 <p className="text-gray-600 mt-1">查看所有智能体的使用数据和分析</p>
                             </div>
                         </div>
-                        <motion.button
-                            onClick={() => navigate('/teacher/agents/manage')}
-                            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center gap-2"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Settings size={20} />
-                            智能体管理
-                        </motion.button>
+                        <div className="flex items-center gap-3">
+                            <motion.button
+                                onClick={handleExportExcel}
+                                disabled={exporting}
+                                className="px-4 py-3 bg-white/80 border border-blue-200 text-blue-700 rounded-xl font-semibold hover:bg-blue-50 transition-all flex items-center gap-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.97 }}
+                            >
+                                <DownloadCloud size={18} />
+                                {exporting ? '导出中...' : '导出大盘'}
+                            </motion.button>
+                            <motion.button
+                                onClick={() => navigate('/teacher/agents/manage')}
+                                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center gap-2"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <Settings size={20} />
+                                智能体管理
+                            </motion.button>
+                        </div>
                     </div>
                 </div>
             </header>
 
             <main className="max-w-7xl mx-auto px-6 py-8">
                 {/* 核心指标 */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
                     <MetricCard
                         icon={BarChart3}
                         label="智能体总数"
@@ -140,11 +237,48 @@ const TeacherAgentStatisticsOverview = () => {
                         color="yellow"
                     />
                     <MetricCard
+                        icon={Users}
+                        label="覆盖学生数"
+                        value={totalStudents}
+                        color="green"
+                    />
+                    <MetricCard
                         icon={MessageCircle}
                         label="留言总数"
                         value={totalComments}
                         color="purple"
                     />
+                </div>
+
+                {/* 高光场景卡片 */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    {teacherAgentStatisticsOverviewData.impactHighlights.map((item) => (
+                        <div
+                            key={item.title}
+                            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} text-white p-5 shadow-lg shadow-blue-100/40`}
+                        >
+                            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_45%)]" />
+                            <div className="relative flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-white/80">{item.subtitle}</p>
+                                    <h3 className="text-xl font-bold mt-1">{item.title}</h3>
+                                </div>
+                                <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center">
+                                    <Sparkles size={20} className="text-white" />
+                                </div>
+                            </div>
+                            <div className="relative mt-4 flex items-end gap-2">
+                                <span className="text-4xl font-black tracking-tight drop-shadow-sm">{item.value}</span>
+                                <span className="text-sm opacity-80 mb-1">{item.unit}</span>
+                            </div>
+                            <div className="relative mt-3 text-sm flex items-center gap-2">
+                                <span className="px-2 py-1 bg-white/20 rounded-full text-xs font-semibold">
+                                    {item.trend}
+                                </span>
+                                <span className="opacity-80">环比提升</span>
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
                 {/* 使用趋势 */}
@@ -236,6 +370,57 @@ const TeacherAgentStatisticsOverview = () => {
                     </GlassCard>
                 </div>
 
+                {/* 年级/场景覆盖 */}
+                <GlassCard variant="standard" className="p-6 mb-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                            <Users className="text-blue-600" size={20} />
+                            学段覆盖与满意度
+                        </h3>
+                        <span className="text-sm text-gray-500">活跃度与满意度双维度对齐</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {adoptionMatrix.map((item) => (
+                            <div
+                                key={item.segment}
+                                className="p-4 rounded-xl border border-slate-100 bg-gradient-to-br from-white to-slate-50 shadow-sm"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs text-slate-500">覆盖群体</p>
+                                        <p className="text-base font-bold text-slate-800">{item.segment}</p>
+                                    </div>
+                                    <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-semibold">
+                                        {item.delta}
+                                    </span>
+                                </div>
+                                <div className="mt-3 space-y-2">
+                                    <div className="flex items-center justify-between text-xs text-slate-500">
+                                        <span>活跃度</span>
+                                        <span className="font-semibold text-slate-700">{item.activeRate}%</span>
+                                    </div>
+                                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-blue-500 to-indigo-500"
+                                            style={{ width: `${item.activeRate}%` }}
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between text-xs text-slate-500">
+                                        <span>满意度</span>
+                                        <span className="font-semibold text-slate-700">{item.satisfaction}</span>
+                                    </div>
+                                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-emerald-400 to-green-500"
+                                            style={{ width: `${(item.satisfaction / 5) * 100}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </GlassCard>
+
                 {/* 智能体列表 */}
                 <GlassCard variant="standard" className="p-6">
                     <div className="flex items-center justify-between mb-4">
@@ -250,6 +435,7 @@ const TeacherAgentStatisticsOverview = () => {
                                 <tr className="border-b border-gray-200">
                                     <th className="text-left py-3 px-4 font-semibold text-gray-700">智能体</th>
                                     <th className="text-center py-3 px-4 font-semibold text-gray-700">使用次数</th>
+                                    <th className="text-center py-3 px-4 font-semibold text-gray-700">覆盖学生</th>
                                     <th className="text-center py-3 px-4 font-semibold text-gray-700">平均评分</th>
                                     <th className="text-center py-3 px-4 font-semibold text-gray-700">评价人数</th>
                                     <th className="text-center py-3 px-4 font-semibold text-gray-700">留言数</th>
@@ -273,6 +459,9 @@ const TeacherAgentStatisticsOverview = () => {
                                             </td>
                                             <td className="text-center py-3 px-4 text-gray-700 font-semibold">
                                                 {stats.totalUsage || 0}
+                                            </td>
+                                            <td className="text-center py-3 px-4 text-gray-700 font-semibold">
+                                                {(usageRecords[agent.id] || []).length}
                                             </td>
                                             <td className="text-center py-3 px-4">
                                                 <div className="flex items-center justify-center gap-1">
