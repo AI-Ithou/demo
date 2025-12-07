@@ -209,6 +209,105 @@ const Dashboard = () => {
                             </UiverseButton>
                         </div>
                     </UiverseCard>
+
+                    {/* Card 5: 知识点目录 (NEW) */}
+                    <UiverseCard variant="glass" hoverable>
+                        <div className="p-6">
+                            <div className="h-40 -mx-6 -mt-6 mb-4 relative overflow-hidden rounded-t-2xl">
+                                <img
+                                    src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1000&auto=format&fit=crop"
+                                    alt="Knowledge Catalog"
+                                    className="w-full h-full object-cover opacity-80"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                <div className="absolute bottom-3 left-4 right-4">
+                                    <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center mb-2">
+                                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a 2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2">知识点目录</h3>
+                            <p className="text-slate-600 text-xs leading-relaxed mb-6 h-8 line-clamp-2">
+                                系统化学习，全面掌握所有知识点。
+                            </p>
+                            <UiverseButton
+                                variant="gradient"
+                                size="medium"
+                                onClick={() => navigate('/course/1/knowledge-catalog')}
+                                className="w-full"
+                            >
+                                浏览知识点
+                            </UiverseButton>
+                        </div>
+                    </UiverseCard>
+
+                    {/* Card 6: 我的作业 (NEW) */}
+                    <UiverseCard variant="glass" hoverable>
+                        <div className="p-6">
+                            <div className="h-40 -mx-6 -mt-6 mb-4 relative overflow-hidden rounded-t-2xl">
+                                <img
+                                    src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?q=80&w=1000&auto=format&fit=crop"
+                                    alt="Homework"
+                                    className="w-full h-full object-cover opacity-80"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                <div className="absolute bottom-3 left-4 right-4">
+                                    <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center mb-2">
+                                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2">我的作业</h3>
+                            <p className="text-slate-600 text-xs leading-relaxed mb-6 h-8 line-clamp-2">
+                                图片识别提交，智能批改作业。
+                            </p>
+                            <UiverseButton
+                                variant="animated"
+                                size="medium"
+                                onClick={() => navigate('/course/1/homework')}
+                                className="w-full"
+                            >
+                                查看作业
+                            </UiverseButton>
+                        </div>
+                    </UiverseCard>
+
+                    {/* Card 7: 学习资料 (NEW) */}
+                    <UiverseCard variant="glass" hoverable>
+                        <div className="p-6">
+                            <div className="h-40 -mx-6 -mt-6 mb-4 relative overflow-hidden rounded-t-2xl">
+                                <img
+                                    src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=1000&auto=format&fit=crop"
+                                    alt="Materials"
+                                    className="w-full h-full object-cover opacity-80"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                <div className="absolute bottom-3 left-4 right-4">
+                                    <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center mb-2">
+                                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2">学习资料</h3>
+                            <p className="text-slate-600 text-xs leading-relaxed mb-6 h-8 line-clamp-2">
+                                按知识点查找，快速定位学习资源。
+                            </p>
+                            <UiverseButton
+                                variant="primary"
+                                size="medium"
+                                onClick={() => navigate('/course/1/materials')}
+                                className="w-full"
+                            >
+                                浏览资料
+                            </UiverseButton>
+                        </div>
+                    </UiverseCard>
                 </div>
             </main>
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-    ArrowLeft, Upload, FileText, Video, Link as LinkIcon, 
+import {
+    ArrowLeft, Upload, FileText, Video, Link as LinkIcon,
     File, FileSpreadsheet, Presentation, Image as ImageIcon,
     Edit, Trash2, Eye, Search, Filter, Plus, X, Check,
     Download, ExternalLink, BookOpen, HelpCircle, Grid, List,
@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Modal, Upload as AntUpload, Input, Select, message, Tag, Tabs } from 'antd';
 import { motion } from 'framer-motion';
+import KNOWLEDGE_POINTS_LIST from '../data/knowledge_points_list';
 
 const { TextArea } = Input;
 const { TabPane } = Tabs;
@@ -46,7 +47,7 @@ const TeacherResourceManager = () => {
     const [isMoveModalVisible, setIsMoveModalVisible] = useState(false);
     const [resourceToMove, setResourceToMove] = useState(null);
     const [moveFolderId, setMoveFolderId] = useState('uncategorized');
-    
+
     // 自定义分类管理
     const [customCategories, setCustomCategories] = useState([
         { id: 'doc', name: '文档资料', icon: 'FileText', color: 'blue' },
@@ -58,6 +59,7 @@ const TeacherResourceManager = () => {
     ]);
     const [newCategoryName, setNewCategoryName] = useState('');
     const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
+    const [selectedKnowledgeFilter, setSelectedKnowledgeFilter] = useState('all'); // 新增：知识点筛选
 
     // 文件上传表单
     const [fileForm, setFileForm] = useState({
@@ -65,6 +67,7 @@ const TeacherResourceManager = () => {
         description: '',
         category: 'document',
         tags: [],
+        knowledgePoints: [], // 新增：关联知识点
         folderId: 'uncategorized'
     });
 
@@ -79,6 +82,7 @@ const TeacherResourceManager = () => {
         difficulty: 'medium',
         knowledge: '',
         tags: [],
+        knowledgePoints: [], // 新增：关联知识点
         folderId: 'f-question'
     });
 
@@ -89,6 +93,7 @@ const TeacherResourceManager = () => {
         description: '',
         category: 'h5',
         tags: [],
+        knowledgePoints: [], // 新增：关联知识点
         folderId: 'f-h5'
     });
 
@@ -103,6 +108,7 @@ const TeacherResourceManager = () => {
             uploadTime: '2024-01-15',
             category: 'document',
             tags: ['理论', '基础'],
+            knowledgePoints: ['kp1', 'kp2'], // 关联知识点
             url: 'https://example.com/file.pdf',
             folderId: 'f-shared',
             thumbnail: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400'
@@ -116,6 +122,7 @@ const TeacherResourceManager = () => {
             uploadTime: '2024-01-14',
             category: 'presentation',
             tags: ['推导', '公式'],
+            knowledgePoints: ['kp3', 'kp5'], // 关联知识点
             url: 'https://example.com/file.pptx',
             folderId: 'f-course',
             thumbnail: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400'
@@ -142,6 +149,7 @@ const TeacherResourceManager = () => {
             uploadTime: '2024-01-12',
             category: 'video',
             tags: ['实验', '演示'],
+            knowledgePoints: ['kp7', 'kp8'], // 关联知识点
             url: 'https://example.com/video.mp4',
             folderId: 'f-course',
             thumbnail: 'https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?w=400'
@@ -252,6 +260,7 @@ const TeacherResourceManager = () => {
             uploadTime: '2024-01-10',
             category: 'question',
             tags: ['选择题', '波粒二象性'],
+            knowledgePoints: ['kp4', 'kp6'], // 关联知识点
             folderId: 'f-question',
             options: ['只有光具有波粒二象性', '所有微观粒子都具有波粒二象性', '只有电子具有波粒二象性', '宏观物体也具有明显的波粒二象性'],
             answer: 'B',
@@ -321,9 +330,8 @@ const TeacherResourceManager = () => {
         nodes.map(node => (
             <div key={node.id} className="select-none">
                 <div
-                    className={`flex items-center justify-between px-2 py-2 rounded-lg cursor-pointer hover:bg-slate-100 ${
-                        selectedFolderId === node.id ? 'bg-blue-50 text-blue-600' : 'text-slate-700'
-                    }`}
+                    className={`flex items-center justify-between px-2 py-2 rounded-lg cursor-pointer hover:bg-slate-100 ${selectedFolderId === node.id ? 'bg-blue-50 text-blue-600' : 'text-slate-700'
+                        }`}
                     style={{ marginLeft: level * 12 }}
                     onClick={() => handleFolderSelect(node.id)}
                 >
@@ -376,11 +384,11 @@ const TeacherResourceManager = () => {
     // 过滤资源
     const filteredResources = resources.filter(resource => {
         const matchesSearch = resource.title.toLowerCase().includes(searchText.toLowerCase()) ||
-                            resource.description?.toLowerCase().includes(searchText.toLowerCase());
-        const matchesTab = activeTab === 'all' || 
-                          (activeTab === 'files' && ['pdf', 'ppt', 'excel', 'video', 'doc', 'image'].includes(resource.type)) ||
-                          (activeTab === 'questions' && resource.type === 'question') ||
-                          (activeTab === 'links' && resource.type === 'h5');
+            resource.description?.toLowerCase().includes(searchText.toLowerCase());
+        const matchesTab = activeTab === 'all' ||
+            (activeTab === 'files' && ['pdf', 'ppt', 'excel', 'video', 'doc', 'image'].includes(resource.type)) ||
+            (activeTab === 'questions' && resource.type === 'question') ||
+            (activeTab === 'links' && resource.type === 'h5');
         const matchesCategory = selectedCategoryFilter === 'all' || resource.category === selectedCategoryFilter;
         const scope = selectedFolderId === 'root' ? null : descendantFolderIds(selectedFolderId);
         const resourceFolderId = resource.folderId || 'uncategorized';
@@ -699,11 +707,10 @@ const TeacherResourceManager = () => {
                     <button
                         key={tab.key}
                         onClick={() => setActiveTab(tab.key)}
-                        className={`px-6 py-3 font-medium transition-all relative ${
-                            activeTab === tab.key
-                                ? 'text-blue-600'
-                                : 'text-slate-600 hover:text-slate-800'
-                        }`}
+                        className={`px-6 py-3 font-medium transition-all relative ${activeTab === tab.key
+                            ? 'text-blue-600'
+                            : 'text-slate-600 hover:text-slate-800'
+                            }`}
                     >
                         {tab.label}
                         <span className="ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-full">
@@ -731,7 +738,7 @@ const TeacherResourceManager = () => {
                         {filteredResources.map((resource) => {
                             const iconInfo = getFileIcon(resource.type);
                             const Icon = iconInfo.icon;
-                            
+
                             return (
                                 <motion.div
                                     key={resource.id}
@@ -783,6 +790,26 @@ const TeacherResourceManager = () => {
                                             </div>
                                         )}
 
+                                        {/* 关联知识点显示 */}
+                                        {resource.knowledgePoints && resource.knowledgePoints.length > 0 && (
+                                            <div className="mb-3">
+                                                <div className="flex flex-wrap gap-1 items-center">
+                                                    <span className="text-xs text-slate-500 font-medium">📌 知识点:</span>
+                                                    {resource.knowledgePoints.map((kpId) => {
+                                                        const kp = KNOWLEDGE_POINTS_LIST.find(k => k.id === kpId);
+                                                        return kp ? (
+                                                            <span
+                                                                key={kpId}
+                                                                className="px-2 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-medium border border-indigo-200"
+                                                            >
+                                                                {kp.name}
+                                                            </span>
+                                                        ) : null;
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => handlePreview(resource)}
@@ -829,7 +856,7 @@ const TeacherResourceManager = () => {
                         {filteredResources.map((resource) => {
                             const iconInfo = getFileIcon(resource.type);
                             const Icon = iconInfo.icon;
-                            
+
                             return (
                                 <motion.div
                                     key={resource.id}
@@ -988,11 +1015,10 @@ const TeacherResourceManager = () => {
                             <div className="space-y-1 max-h-[420px] overflow-auto pr-1">
                                 <button
                                     onClick={() => handleFolderSelect('root')}
-                                    className={`w-full flex items-center justify-between px-2 py-2 rounded-lg ${
-                                        selectedFolderId === 'root'
-                                            ? 'bg-blue-50 text-blue-600'
-                                            : 'text-slate-700 hover:bg-slate-100'
-                                    }`}
+                                    className={`w-full flex items-center justify-between px-2 py-2 rounded-lg ${selectedFolderId === 'root'
+                                        ? 'bg-blue-50 text-blue-600'
+                                        : 'text-slate-700 hover:bg-slate-100'
+                                        }`}
                                 >
                                     <span className="font-medium">全部资料</span>
                                     <span className="text-xs text-slate-400">{resources.length}</span>
@@ -1187,7 +1213,7 @@ const TeacherResourceManager = () => {
                         value={questionForm.title}
                         onChange={(e) => setQuestionForm({ ...questionForm, title: e.target.value })}
                     />
-                    
+
                     <Select
                         placeholder="题目类型"
                         className="w-full"

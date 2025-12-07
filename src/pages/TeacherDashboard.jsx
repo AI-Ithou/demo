@@ -46,10 +46,10 @@ const TeacherDashboard = () => {
 
     // 统计数据
     const stats = [
-        { label: '课程总数', value: '3', icon: BookOpen, color: 'blue' },
-        { label: '学生总数', value: '386', icon: Users, color: 'green' },
-        { label: '待批改', value: '43', icon: Clock, color: 'orange' },
-        { label: '本周作业', value: '8', icon: Calendar, color: 'purple' }
+        { label: '课程总数', value: '3', icon: BookOpen, color: 'blue', link: '/teacher/course' },
+        { label: '学生总数', value: '386', icon: Users, color: 'green', link: '/teacher/students' },
+        { label: '智能体', value: '6', icon: Sparkles, color: 'purple', link: '/teacher/agents' },
+        { label: '待批改', value: '43', icon: Clock, color: 'orange', link: '/teacher/course' }
     ];
 
     const getColorClasses = (color) => {
@@ -122,7 +122,8 @@ const TeacherDashboard = () => {
                                 <GlassCard
                                     variant="standard"
                                     hover={true}
-                                    className="p-6 h-full"
+                                    className="p-6 h-full cursor-pointer"
+                                    onClick={() => stat.link && navigate(stat.link)}
                                 >
                                     <div className="flex items-start justify-between mb-4">
                                         <motion.div

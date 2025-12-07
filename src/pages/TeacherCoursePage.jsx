@@ -228,7 +228,29 @@ const TeacherCoursePage = () => {
                             </div>
                         )}
 
-                        {activeTab !== 'manage' && activeTab !== 'resources' && (
+                        {activeTab === 'agent' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* 智能体统计 */}
+                                <div onClick={() => navigate('/teacher/agents')} className="bg-white rounded-xl border-2 border-slate-200 p-6 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer group">
+                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-3">
+                                        <BarChart3 size={24} className="text-white" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 mb-2">智能体统计</h3>
+                                    <p className="text-sm text-slate-600">查看所有智能体的使用数据</p>
+                                </div>
+
+                                {/* 智能体管理 */}
+                                <div onClick={() => navigate('/teacher/agents/manage')} className="bg-white rounded-xl border-2 border-slate-200 p-6 hover:border-purple-300 hover:shadow-lg transition-all cursor-pointer group">
+                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-3">
+                                        <Settings size={24} className="text-white" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-purple-600 mb-2">智能体管理</h3>
+                                    <p className="text-sm text-slate-600">创建、编辑智能体设置</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab !== 'manage' && activeTab !== 'resources' && activeTab !== 'agent' && (
                             <div className="text-center py-20">
                                 <div className="text-slate-400 text-lg">
                                     {tabs.find(t => t.id === activeTab)?.label} 功能开发中...

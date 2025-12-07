@@ -5,9 +5,10 @@ import {
     RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
     ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip
 } from 'recharts';
-import { Brain, Target, Zap, Sparkles, TrendingUp, Award } from 'lucide-react';
+import { Brain, Target, Zap, Sparkles, TrendingUp, Award, AlertTriangle, TrendingDown, Calendar } from 'lucide-react';
 import StorageUtils from '../utils/storage_utils';
 import AI_LEARNING_ANALYSIS_DATA from '../data/ai_learning_analysis_data';
+import FAIL_RATE_DATA from '../data/fail_rate_data';
 
 /**
  * 报告详情页面 - 能力雷达和知识地图
@@ -190,6 +191,149 @@ const LearningReportDetails = () => {
                         ))}
                     </div>
                 </div>
+            </div>
+
+            {/* 挂科率分析 */}
+            <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-lg">
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${FAIL_RATE_DATA.overall.rate < 10 ? 'bg-gradient-to-br from-emerald-600 to-green-600' :
+                                FAIL_RATE_DATA.overall.rate < 20 ? 'bg-gradient-to-br from-amber-600 to-orange-600' :
+                                    'bg-gradient-to-br from-rose-600 to-red-600'
+                            }`}>
+                            <AlertTriangle className="text-white" size={24} />
+                        </div>
+                        <h3 className="text-2xl font-bold text-slate-800">挂科率分析</h3>
+                    </div>
+                    <div className="text-right">
+                        <div className="flex items-center gap-2 justify-end">
+                            <TrendingDown className="text-emerald-500" size={20} />
+                            <span className="text-sm text-emerald-600 font-medium">
+                                较上次下降 {FAIL_RATE_DATA.overall.improvement}%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 总体挂科率 */}
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="bg-gradient-to-br from-rose-50 to-red-50 rounded-xl p-4 border border-rose-100">
+                        <div className="text-sm text-rose-600 font-medium mb-1">当前挂科率</div>
+                        <div className="text-3xl font-black text-rose-600">{FAIL_RATE_DATA.overall.rate}%</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
+                        <div className="text-sm text-slate-600 font-medium mb-1">上次挂科率</div>
+                        <div className="text-3xl font-black text-slate-600">{FAIL_RATE_DATA.overall.previousRate}%</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-4 border border-emerald-100">
+                        <div className="text-sm text-emerald-600 font-medium mb-1">改善幅度</div>
+                        <div className="text-3xl font-black text-emerald-600">↓ {FAIL_RATE_DATA.overall.improvement}%</div>
+                    </div>
+                </div>
+
+                {/* 挂科科目列表 */}
+                <div className="space-y-3 mb-6">
+                    <h4 className="font-bold text-slate-800 mb-3">挂科科目详情</h4>
+                    {FAIL_RATE_DATA.failedSubjects.map((subject, idx) => (
+                        <motion.div
+                            key={subject.id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            className={`p-4 rounded-xl border-2 ${subject.status === 'critical' ? 'bg-rose-50 border-rose-200' :
+                                    subject.status === 'warning' ? 'bg-amber-50 border-amber-200' :
+                                        'bg-emerald-50 border-emerald-200'
+                                }`}>
+                            <div className="flex items-center justify-between mb-3">
+                                <div>
+                                    <h5 className="font-bold text-slate-800 mb-1">{subject.name}</h5>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${subject.status === 'critical' ? 'bg-rose-200 text-rose-700' :
+                                                subject.status === 'warning' ? 'bg-amber-200 text-amber-700' :
+                                                    'bg-emerald-200 text-emerald-700'
+                                            }`}>
+                                            {subject.status === 'critical' ? '严重' : subject.status === 'warning' ? '警告' : '正常'}
+                                        </span>
+                                        <span className="text-sm text-slate-500">
+                                            上次考试: {subject.lastExamScore}分 (及格线: {subject.passingScore}分)
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-2xl font-black text-rose-600">{subject.failRate}%</div>
+                                    <div className="text-xs text-slate-500">挂科率</div>
+                                </div>
+                            </div>
+
+                            {/* 薄弱知识点 */}
+                            <div className="mb-3">
+                                <div className="text-xs font-bold text-slate-600 mb-2">薄弱知识点:</div>
+                                <div className="flex flex-wrap gap-2">
+                                    {subject.weakPoints.map((point, pIdx) => (
+                                        <button
+                                            key={pIdx}
+                                            onClick={() => navigateToErrors(point)}
+                                            className="px-2 py-1 bg-white rounded-lg text-xs font-medium text-slate-700 border border-slate-200 hover:bg-slate-100 hover:scale-105 transition-all">
+                                            {point} →
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 推荐行动 */}
+                            <div>
+                                <div className="text-xs font-bold text-slate-600 mb-1">AI推荐行动:</div>
+                                <div className="space-y-1">
+                                    {subject.recommendedActions.map((action, aIdx) => (
+                                        <div key={aIdx} className="flex items-start gap-2 text-xs text-slate-600">
+                                            <span className="text-blue-500 mt-0.5">•</span>
+                                            <span>{action}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+
+                {/* 补考计划 */}
+                {FAIL_RATE_DATA.retakeSchedule.length > 0 && (
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                        <div className="flex items-center gap-2 mb-3">
+                            <Calendar className="text-blue-600" size={18} />
+                            <span className="text-sm font-bold text-blue-600">补考计划</span>
+                        </div>
+                        {FAIL_RATE_DATA.retakeSchedule.map((retake, idx) => (
+                            <div key={idx} className="bg-white rounded-lg p-3 border border-blue-200">
+                                <div className="flex items-center justify-between mb-2">
+                                    <div>
+                                        <div className="font-bold text-slate-800">{retake.subject}</div>
+                                        <div className="text-xs text-slate-500">补考日期: {retake.retakeDate}</div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-lg font-bold text-blue-600">{retake.daysLeft}天</div>
+                                        <div className="text-xs text-slate-500">剩余时间</div>
+                                    </div>
+                                </div>
+                                <div className="mb-2">
+                                    <div className="flex items-center justify-between text-xs mb-1">
+                                        <span className="text-slate-600">复习进度</span>
+                                        <span className="font-bold text-blue-600">{retake.studyProgress}%</span>
+                                    </div>
+                                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all"
+                                            style={{ width: `${retake.studyProgress}%` }}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="text-xs text-slate-600">
+                                    目标分数: <span className="font-bold text-blue-600">{retake.targetScore}分</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* 知识点深度分析 */}

@@ -49,6 +49,20 @@ import StudentEvaluationHistory from './pages/StudentEvaluationHistory';
 import StudentManagement from './pages/StudentManagement';
 import ClassManagement from './pages/ClassManagement';
 
+// New Student Pages
+import KnowledgeCatalogPage from './pages/KnowledgeCatalogPage';
+import StudentHomeworkPage from './pages/StudentHomeworkPage';
+import StudentMaterialsPage from './pages/StudentMaterialsPage';
+
+// Agent System Pages
+import TeacherAgentManager from './pages/TeacherAgentManager';
+import TeacherAgentStatistics from './pages/TeacherAgentStatistics';
+import TeacherAgentComments from './pages/TeacherAgentComments';
+import TeacherAgentDetailPage from './pages/TeacherAgentDetailPage';
+import TeacherAgentStatisticsOverview from './pages/TeacherAgentStatisticsOverview';
+import StudentAgentList from './pages/StudentAgentList';
+import StudentAgentDetail from './pages/StudentAgentDetail';
+
 // Placeholder components for future pages to avoid build errors
 const PlaceholderPage = ({ title }) => (
   <div className="flex items-center justify-center h-full text-slate-500 text-xl">
@@ -84,6 +98,11 @@ function App() {
       <Route path="/my-learning-trajectory" element={<MyLearningTrajectoryPage />} />
       <Route path="/error-log" element={<ErrorLogPage />} />
 
+      {/* Course-based Student Features - 基于课程的学生功能 */}
+      <Route path="/course/:courseId/knowledge-catalog" element={<KnowledgeCatalogPage />} />
+      <Route path="/course/:courseId/homework" element={<StudentHomeworkPage />} />
+      <Route path="/course/:courseId/materials" element={<StudentMaterialsPage />} />
+
       {/* Learning Report System Routes */}
       <Route path="/learning-report" element={<LearningReportLayout />}>
         <Route index element={<Navigate to="overview" replace />} />
@@ -113,6 +132,16 @@ function App() {
       <Route path="/teacher/student-evaluation/:studentId" element={<StudentEvaluationHistory />} />
       <Route path="/teacher/students" element={<StudentManagement />} />
       <Route path="/teacher/classes" element={<ClassManagement />} />
+      {/* 智能体路由 */}
+      <Route path="/teacher/agents" element={<TeacherAgentStatisticsOverview />} />  {/* 统计入口 */}
+      <Route path="/teacher/agents/manage" element={<TeacherAgentManager />} />  {/* 管理入口 */}
+      <Route path="/teacher/agent/:agentId" element={<TeacherAgentDetailPage />} />
+      <Route path="/teacher/agent/:agentId/statistics" element={<TeacherAgentStatistics />} />
+      <Route path="/teacher/agent/:agentId/comments" element={<TeacherAgentComments />} />
+
+      {/* Student Agent Routes */}
+      <Route path="/student/agents" element={<StudentAgentList />} />
+      <Route path="/student/agent/:agentId" element={<StudentAgentDetail />} />
     </Routes>
   );
 }

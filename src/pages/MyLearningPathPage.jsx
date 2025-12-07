@@ -402,7 +402,24 @@ const MyLearningPathPage = () => {
                                                 }}
                                                 onMouseEnter={() => setHoveredNode(node.id)}
                                                 onMouseLeave={() => setHoveredNode(null)}
-                                                onClick={() => setSelectedNode(node)}
+                                                onClick={() => {
+                                                    // 根据节点状态决定操作
+                                                    if (node.status === 'locked') {
+                                                        // 未解锁节点不能点击
+                                                        return;
+                                                    }
+
+                                                    if (node.status === 'completed' || node.status === 'current') {
+                                                        // 已完成或进行中的节点，跳转到学习对话页面
+                                                        navigate(`/learning-dialogue/${node.id}`, {
+                                                            state: {
+                                                                nodeTitle: node.title,
+                                                                nodeStage: node.stage,
+                                                                nodeStatus: node.status
+                                                            }
+                                                        });
+                                                    }
+                                                }}
                                             >
                                                 <div
                                                     className={`
@@ -413,7 +430,7 @@ const MyLearningPathPage = () => {
                                                         transition-all duration-300
                                                         ${hoveredNode === node.id ? 'scale-110 -translate-y-2 z-50' : 'z-10'}
                                                         ${style.pulse ? 'animate-pulse' : ''}
-                                                        cursor-pointer
+                                                        ${node.status === 'locked' ? 'cursor-not-allowed' : 'cursor-pointer'}
                                                         min-w-[130px]
                                                     `}
                                                 >
